@@ -12,15 +12,17 @@ const AppBar = () => {
                         ></path>
                     </svg>
                 </div>
+                <a href="/">
                 <h2 className="text-white text-lg font-bold leading-tight tracking-[-0.015em]">Qora AI</h2>
+                </a>
             </div>
             <div className="flex flex-1 justify-end gap-8">
                 <div className="flex items-center gap-9">
-                    <a className="text-white text-sm font-medium leading-normal" href="#">Our Services</a>
-                    <a className="text-white text-sm font-medium leading-normal" href="#">About Us</a>
-                    <a className="text-white text-sm font-medium leading-normal" href="#">Contact</a>
+                    <a className="text-white text-sm font-medium leading-normal" href="/pricing">Our Products</a>
+                    {/* <a className="text-white text-sm font-medium leading-normal" href="#">About Us</a> */}
+                    {/* <a className="text-white text-sm font-medium leading-normal" href="#">Contact</a> */}
                 </div>
-                <div className="flex gap-2">
+                {/* <div className="flex gap-2">
                     <button
                         className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 bg-[#3117a6] text-white text-sm font-bold leading-normal tracking-[0.015em]"
                     >
@@ -31,7 +33,7 @@ const AppBar = () => {
                     >
                         <span className="truncate">Log in</span>
                     </button>
-                </div>
+                </div> */}
             </div>
         </header>
     )
