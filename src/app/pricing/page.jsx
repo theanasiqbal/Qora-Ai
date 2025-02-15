@@ -6,12 +6,10 @@ import Karya from "./Karya";
 import Hrms from "./Hrms";
 import { Payroll } from "./Payroll";
 import IntroText from "./Intro";
-import AppBar from "@/components/AppBar";
 
 const Pricing = () => {
   return (
     <>
-     <AppBar />
       <div
         className="parallaxf2fin"
         style={{

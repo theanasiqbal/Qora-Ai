@@ -66,9 +66,9 @@
   @layer base {
     body {
       @apply bg-background text-foreground;
-      background-image: url('/images/your-image.jpg'); /* Path from the public folder */
+      /* background-image: url('/images/your-image.jpg');  */
       background-size: cover;
       background-position: center;
     }
-  } 
+  }
 }
