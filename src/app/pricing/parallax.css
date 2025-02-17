@@ -1,0 +1,72 @@
+.parallaxKarya {
+    /* The image used */
+    background-image: url("/public/taskmanagment.jpg");
+    background-color: #7251A1;
+    /* Full height */
+    height: "1000px";
+
+    
+  
+    /* Create the parallax scrolling effect */
+
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+  
+  /* demo only  */
+
+  .parallaxf2fin {
+    /* The image used */
+    background-image: url("/public/f2fintop.png");
+   background-color: #D7D1FD;
+    /* Full height */
+    height: "1000px";
+
+    
+  
+    /* Create the parallax scrolling effect */
+
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+    /* demo only 
+    
+    
+    
+    
+    
+    
+    */
+  .parallaxHrms {
+    /* The image used */
+    background-image: url("/public/hrmsmain1.png");
+    background-color: #80839E;
+    /* Full height */
+    height: "1000px";
+  
+    /* Create the parallax scrolling effect */
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+  
+  .parallaxPayroll {
+    /* The image used */
+    background-image: url("/public/payrollselfchange.png");
+    background-color:#4DD0B3;
+  
+    /* Full height */
+    height: "1000px";
+  
+    /* Create the parallax scrolling effect */
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+  
