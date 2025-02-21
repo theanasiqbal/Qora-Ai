@@ -19,7 +19,7 @@ const faqs = [
   {
     question: "Is there a money-back guarantee?",
     answer:
-      "Yes, we offer a 30-day money-back guarantee. If you're not completely satisfied with our service, you can request a full refund within the first 30 days of your subscription.",
+      "Yes, we offer a 30-day money-back guarantee. If you are not completely satisfied with our service, you can request a full refund within the first 30 days of your subscription.",
   },
   {
     question: "Can I invite my team to use Qora?",
@@ -113,7 +113,7 @@ export default function FAQ() {
               mb: 4,
             }}
           >
-            Let's clear things up.
+            Let us clear things up.
           </Typography>
           <Typography
             variant="body1"
@@ -127,7 +127,7 @@ export default function FAQ() {
             variant="body1"
             sx={{ color: "#ced4da", fontSize: "1rem", mt: 2 }}
           >
-            We're here to make it clear—check out our FAQs, and if you still
+            We are here to make it clear—check out our FAQs, and if you still
             feel the need to ask AI questions, Cassie is always ready to answer.
           </Typography>
         </Box>

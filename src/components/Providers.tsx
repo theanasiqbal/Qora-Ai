@@ -2,7 +2,14 @@
 
 import { PropsWithChildren } from "react";
 import { NextUIProvider } from "@nextui-org/react";
+// import { SessionProvider } from "next-auth/react";
 
 export const Providers = ({ children }: PropsWithChildren) => {
-  return <NextUIProvider>{children}</NextUIProvider>;
+  return (
+    // <SessionProvider>
+    <NextUIProvider>
+      {children}
+    </NextUIProvider>
+    // </SessionProvider>
+  )
 };

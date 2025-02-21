@@ -238,9 +238,10 @@ const SocialMedia = () => {
                 width: "27vw",
               }}
             >
+              {`
               Transform your social presence with AI-powered content creation,
               scheduling, and analytics. Effortlessly maintain your brand's
-              voice across all platforms.
+              voice across all platforms.`}
             </Typography>
           </Box>
 
@@ -317,9 +318,10 @@ const SocialMedia = () => {
                 width: "27vw",
               }}
             >
+              {`
               Transform your social presence with AI-powered content creation,
               scheduling, and analytics. Effortlessly maintain your brand's
-              voice across all platforms.
+              voice across all platforms.`}
             </Typography>
           </Box>
 

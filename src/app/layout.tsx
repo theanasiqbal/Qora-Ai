@@ -11,9 +11,6 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Qora.ai",
   description: "AI Assistants for making your work faster.",
-  icons: {
-    icon: "/favicon.ico",
-  },
 };
 
 export default function RootLayout({
@@ -31,10 +28,9 @@ export default function RootLayout({
       >
         <Providers>
           <AppBar />
-          <main className="flex-1 dark text-foreground bg-background">
+          <main className="flex-1 dark text-foreground bg-background flex flex-col">
             {children}
           </main>
-          <Footer />
         </Providers>
       </body>
     </html>

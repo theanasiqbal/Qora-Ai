@@ -22,6 +22,7 @@ export default function Home() {
       <Benefits />
       <PricingPage />
       <Faq />
+      <Footer />
     </div>
   );
 }

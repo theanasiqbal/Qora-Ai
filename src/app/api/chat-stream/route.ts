@@ -8,10 +8,8 @@ export const POST = async (req: NextRequest) => {
   const lastMessage = messages[messages.length - 1].content;
 
   const response = await ragChat.chat(lastMessage, {
-    streaming: true, sessionId,
-    ratelimitDetails: (response) => {
-      console.log(`Limit left: ${JSON.stringify(response)}`);
-    },
+    streaming: true,
+    sessionId,
   });
 
   return aiUseChatAdapter(response);

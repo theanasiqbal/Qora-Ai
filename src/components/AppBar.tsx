@@ -1,5 +1,8 @@
-import { Bot } from "lucide-react";
+"use client";
 import React from "react";
+
+import { Bot } from "lucide-react";
+import { LogIn } from "lucide-react";
 
 const AppBar = () => {
   return (
@@ -23,18 +26,20 @@ const AppBar = () => {
           {/* <a className="text-white text-sm font-medium leading-normal" href="#">About Us</a> */}
           {/* <a className="text-white text-sm font-medium leading-normal" href="#">Contact</a> */}
         </div>
-        {/* <div className="flex gap-2">
-                    <button
-                        className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 bg-[#3117a6] text-white text-sm font-bold leading-normal tracking-[0.015em]"
-                    >
-                        <span className="truncate">Sign Up</span>
-                    </button>
-                    <button
-                        className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 bg-[#2b2546] text-white text-sm font-bold leading-normal tracking-[0.015em]"
-                    >
-                        <span className="truncate">Log in</span>
-                    </button>
-                </div> */}
+      </div>
+      <div className="flex flex-1 justify-end gap-8">
+        <div className="flex items-center gap-9">
+          {/* Optional links can go here */}
+        </div>
+        {/* Login icon section */}
+        <div className="flex items-center gap-4">
+          <button
+            className="text-white text-sm font-medium flex items-center gap-2"
+          >
+            <LogIn className="text-white" size={18} />
+            <span>Log In</span>
+          </button>
+        </div>
       </div>
     </header>
   );
