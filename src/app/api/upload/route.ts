@@ -1,23 +1,28 @@
 import { writeFile, mkdir } from "fs/promises";
 import { NextResponse } from "next/server";
 import path from "path";
+import fs from "fs"
 
 export async function POST(req) {
   try {
     const data = await req.formData();
-    const name = data.get("name"); // Get user-provided name
+    const name = data.get("name"); // Get user name
+    const folder = data.get("folder"); // Get folder name (e.g., "Legal Documents")
     const files = data.getAll("files"); // Get multiple files
 
-    if (!name || files.length === 0) {
-      return NextResponse.json({ error: "Name and files are required!" }, { status: 400 });
+    if (!name || !folder || files.length === 0) {
+      return NextResponse.json(
+        { error: "Name, folder, and files are required!" },
+        { status: 400 }
+      );
     }
 
-    const uploadDir = path.join(process.cwd(), "public", "data", name);
+    const uploadDir = path.join(process.cwd(), "public", "data", name, folder);
 
-    // Create directory if it doesn't exist
+    // Create the directory if it doesn't exist
     await mkdir(uploadDir, { recursive: true });
 
-    // Save each file
+    // Save each file into the correct folder
     await Promise.all(
       files.map(async (file) => {
         const bytes = await file.arrayBuffer();
@@ -27,8 +32,44 @@ export async function POST(req) {
       })
     );
 
-    return NextResponse.json({ message: "Files uploaded successfully!" }, { status: 200 });
+    return NextResponse.json(
+      { message: `Files uploaded to ${folder} successfully!` },
+      { status: 200 }
+    );
   } catch (error) {
-    return NextResponse.json({ error: "File upload failed!" }, { status: 500 });
+    return NextResponse.json(
+      { error: "File upload failed!" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET() {
+  const companyName = "Codevamp"; // Hardcoded company name
+  const basePath = path.join(process.cwd(), "public", "data", companyName);
+
+  try {
+    const items = fs.readdirSync(basePath, { withFileTypes: true });
+
+    // Prepare the response structure
+    const folders = items
+      .filter((item) => item.isDirectory())
+      .map((folder) => {
+        const folderPath = path.join(basePath, folder.name);
+        const files = fs.readdirSync(folderPath).map((file) => ({
+          name: file,
+          type: "file",
+        }));
+
+        return {
+          name: folder.name,
+          type: "folder",
+          files,
+        };
+      });
+
+    return NextResponse.json({ success: true, data: folders });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: "Error fetching folders & files" });
   }
 }
