@@ -48,141 +48,136 @@ export default function FAQ() {
 
   return (
     <Box
+    sx={{
+      minHeight: "100vh", // Adjust to make the height responsive
+      position: "relative",
+      "&:before": {
+        content: '""',
+        position: "absolute",
+        width: "50vw", // Responsive width
+        height: "50vw", // Responsive height
+        background:
+          "radial-gradient(circle, rgba(113, 47, 255, 0.15) 0%, transparent 70%)",
+        top: "20%",
+        left: "10%",
+      },
+      "&:after": {
+        content: '""',
+        position: "absolute",
+        width: "40vw", // Responsive width
+        height: "40vw", // Responsive height
+        background:
+          "radial-gradient(circle, rgba(113, 47, 255, 0.15) 0%, transparent 70%)",
+        top: "40%",
+        left: "10%",
+      },
+      color: "white",
+      p: 6,
+    }}
+  >
+    <Box
       sx={{
-        minHeight: "100vh",
-        position: "relative",
-        "&:before": {
-          content: '""',
-          position: "absolute",
-          width: "600px",
-          // border: "1px solid red",
-          height: "600px",
-          background:
-            "radial-gradient(circle, rgba(113, 47, 255, 0.15) 0%, transparent 70%)",
-          top: "20%",
-          left: "10%",
+        maxWidth: "1200px",
+        display: "flex",
+        alignItems: "center",
+        flexDirection: {
+          xs: "column",
+          sm: "column", // Stack on small screens
+          md: "row", // Row on medium and larger screens
         },
-        "&:after": {
-          content: '""',
-          position: "absolute",
-          width: "400px",
-          height: "400px",
-          background:
-            "radial-gradient(circle, rgba(113, 47, 255, 0.15) 0%, transparent 70%)",
-          top: "40%",
-          left: "10%",
-        },
-        color: "white",
-
-        p: 6,
+        justifyContent: "center",
+        margin: "30px auto 0 auto",
+        backgroundColor: "transparent",
+        width: "100%", // Ensuring it's responsive
       }}
     >
-      <Box
-        sx={{
-          maxWidth: "1200px",
-          display: "flex",
-          alignItems: "center",
-          flexDirection: {
-            xs: "column",
-            md: "row",
-            sm: "row",
-            lg: "row",
-            xl: "row",
-          },
-          justifyContent: "center",
-          margin: "30px auto 0 auto",
-          backgroundColor: "transparent",
-        }}
-      >
-        <Box sx={{ marginBottom: 4, width: "40vw" }}>
-          <Typography
-            variant="h2"
-            sx={{
-              fontWeight: "bold",
-              fontSize: { xs: "2rem", md: "3rem" },
-              mb: 2,
-            }}
-          >
-            Questions?
-          </Typography>
-          <Typography
-            variant="h3"
-            sx={{
-              fontWeight: "bold",
-              fontSize: { xs: "2rem", md: "3rem" },
-              mb: 4,
-            }}
-          >
-            Let us clear things up.
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{ color: "#ced4da", fontSize: "1rem" }}
-          >
-            Yes, we understand—AI-powered solutions, business automation tools,
-            AI for marketing, AI for customer support... a lot of big words can
-            get confusing.
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{ color: "#ced4da", fontSize: "1rem", mt: 2 }}
-          >
-            We are here to make it clear—check out our FAQs, and if you still
-            feel the need to ask AI questions, Cassie is always ready to answer.
-          </Typography>
-        </Box>
-
-        <Box
+      <Box sx={{ marginBottom: 4, width: { xs: "100%", sm: "80%", md: "40vw" } }}>
+        <Typography
+          variant="h2"
           sx={{
-            spaceY: 2,
-            backgroundColor: "transparent",
-            width: "40vw",
+            fontWeight: "bold",
+            fontSize: { xs: "2rem", md: "3rem" },
+            mb: 2,
           }}
         >
-          {faqs.map((faq, index) => (
-            <Accordion
-              key={index}
-              expanded={openIndex === index}
-              onChange={() => setOpenIndex(openIndex === index ? null : index)}
+          Questions?
+        </Typography>
+        <Typography
+          variant="h3"
+          sx={{
+            fontWeight: "bold",
+            fontSize: { xs: "2rem", md: "3rem" },
+            mb: 4,
+          }}
+        >
+          Let us clear things up.
+        </Typography>
+        <Typography variant="body1" sx={{ color: "#ced4da", fontSize: "1rem" }}>
+          Yes, we understand—AI-powered solutions, business automation tools,
+          AI for marketing, AI for customer support... a lot of big words can
+          get confusing.
+        </Typography>
+        <Typography
+          variant="body1"
+          sx={{ color: "#ced4da", fontSize: "1rem", mt: 2 }}
+        >
+          We are here to make it clear—check out our FAQs, and if you still
+          feel the need to ask AI questions, Cassie is always ready to answer.
+        </Typography>
+      </Box>
+  
+      <Box
+        sx={{
+          spaceY: 2,
+          backgroundColor: "transparent",
+          width: { xs: "100%", sm: "80%", md: "40vw" },
+        }}
+      >
+        {faqs.map((faq, index) => (
+          <Accordion
+            key={index}
+            expanded={openIndex === index}
+            onChange={() => setOpenIndex(openIndex === index ? null : index)}
+            sx={{
+              borderBottom: "1px solid #333",
+              backgroundColor: "transparent",
+            }}
+          >
+            <AccordionSummary
+              expandIcon={
+                <ChevronDown
+                  style={{ color: "white" }}
+                  className={`w-5 h-5 transition-transform duration-200 ${
+                    openIndex === index ? "rotate-180" : ""
+                  }`}
+                />
+              }
               sx={{
-                borderBottom: "1px solid #333",
                 backgroundColor: "transparent",
+                color: "white",
+                "&:hover": { color: "white" },
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "16px 24px",
               }}
             >
-              <AccordionSummary
-                expandIcon={
-                  <ChevronDown
-                    style={{ color: "white" }}
-                    className={`w-5 h-5 transition-transform duration-200 ${
-                      openIndex === index ? "rotate-180" : ""
-                    }`}
-                  />
-                }
-                sx={{
-                  backgroundColor: "transparent",
-                  color: "white",
-                  "&:hover": { color: "white" },
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "16px 24px",
-                }}
-              >
-                <Typography variant="body1" sx={{ fontWeight: "500" }}>
-                  {faq.question}
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails
-                sx={{ padding: "16px 24px", backgroundColor: "transparent" }}
-              >
-                <Typography variant="body2" sx={{ color: "#ced4da" }}>
-                  {faq.answer}
-                </Typography>
-              </AccordionDetails>
-            </Accordion>
-          ))}
-        </Box>
+              <Typography variant="body1" sx={{ fontWeight: "500" }}>
+                {faq.question}
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails
+              sx={{ padding: "16px 24px", backgroundColor: "transparent" }}
+            >
+              <Typography variant="body2" sx={{ color: "#ced4da" }}>
+                {faq.answer}
+              </Typography>
+            </AccordionDetails>
+          </Accordion>
+        ))}
       </Box>
     </Box>
+  </Box>
+  
   );
 }

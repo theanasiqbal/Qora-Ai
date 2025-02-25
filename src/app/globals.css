@@ -63,12 +63,16 @@
   * {
     @apply border-border;
   }
+  
   @layer base {
     body {
       @apply bg-background text-foreground;
       /* background-image: url('/images/your-image.jpg');  */
       background-size: cover;
       background-position: center;
+    }
+    .MuiGrid-item {
+      padding-left: 0 !important;  /* Remove the left padding */
     }
   }
 }
