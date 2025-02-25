@@ -6,7 +6,7 @@ import { LogIn } from "lucide-react";
 
 const AppBar = () => {
   return (
-    <header className="flex items-center justify-between whitespace-nowrap bg-[#151221] px-10 py-3 overflow-hidden sticky top-0 z-50">
+    <header className="flex items-center justify-between whitespace-nowrap bg-[#151221] px-10 py-3 overflow-hidden sticky top-0 z-50 h-[5vh]">
       <div className="flex items-center gap-4 text-white">
         <a href="/">
           <Bot className="size-6 text-white" />

@@ -31,14 +31,7 @@ const Page = async ({ params }: PageProps) => {
   const initialMessages = await ragChat.history.getMessages({ amount: 10, sessionId });
 
   if (!isAlreadyIndexed) {
-
-    // await ragChat.context.add({
-    //   type: "text",
-    //   data: `You are a concise Sales AI assistant named Cooper.
-    //   Answer the user's question **directly**. **Do not** include phrases like "Based on the context" or "According to the given information"
-    //   `,
-    // });
-
+    //vector database - embeddings will be added
     await ragChat.context.add({
       type: "pdf",
       fileSource: pdfPath,

@@ -1,28 +1,48 @@
+ol {
+    list-style-type: decimal;
+    /* Ensures numbered list appears */
+    margin-left: 20px;
+    margin-bottom: 8px;
+    /* Adds indentation */
+}
+
+p {
+    margin-bottom: 12px;
+    /* Adds spacing between paragraphs */
+}
+
+br {
+    display: block;
+    content: " ";
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+li:has(br + br)::after {
+    content: "";
+    display: block;
+    margin-top: 8px; /* Adjust spacing */
+}
+
 .message-actions {
     display: flex;
     gap: 10px;
-    margin-top: 5px;
+    margin-top: 10px;
 }
 
-.message-actions button {
-    background: none;
-    border: 1px solid #ddd;
+.message-actions button a {
     padding: 5px 10px;
     cursor: pointer;
-    border-radius: 5px;
 }
 
 .message-actions button:hover {
-    background-color: #f0f0f0;
+    background-color: black;
+}
+
+.message-actions a:hover {
+    background-color: black;
 }
 
 .message-actions button.active {
     background-color: #d1e7ff;
-}
-
-.message-actions a {
-    text-decoration: none;
-    font-size: 14px;
-    color: #0077b5;
-    /* LinkedIn color */
 }

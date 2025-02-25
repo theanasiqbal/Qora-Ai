@@ -5,9 +5,11 @@ import React, { useEffect, useRef } from "react";
 
 interface MessagesProps {
   messages: TMessage[];
+  onShareClick: () => {};
 }
 
-export const Messages = ({ messages }: MessagesProps) => {
+// eslint-disable-next-line react/display-name
+const Messages = React.memo(({ messages, onShareClick }: MessagesProps) => {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   // Smooth scrolling function
@@ -35,4 +37,9 @@ export const Messages = ({ messages }: MessagesProps) => {
       <div ref={messagesEndRef} className="h-1" />
     </div>
   );
-};
+});
+
+// Give Messages a display name for better debugging
+Messages.displayName = "Messages";
+
+export default Messages;

@@ -26,10 +26,14 @@ export const ragChat = new RAGChat({
       User Request: ${trimmedQuestion}
   
       Respond based on the request type:
-      - **Email**: Generate a persuasive cold outreach email.
-      - **Social Media**: Create an engaging post for LinkedIn, Facebook, Twitter(X), or Discord.
-      - **Competitor Analysis**: Analyze competitors, their strengths/weaknesses, and positioning.
-  
+      - **Email**: Generate a persuasive **cold outreach email**.
+      - **Social Media**: Create an engaging **post** for LinkedIn, Facebook, Twitter(X), or Discord.
+      - **Competitor Analysis**: Analyze **competitors, their strengths/weaknesses, and positioning**.
+
+      If the request is **not related** to the above categories, assume it's a **document-related question** about the product.
+      In this case:
+      - Provide a **clear, step-by-step product guide**.
+      - Ensure the instructions are **concise, easy to follow, and user-friendly**.
       Keep responses brief, structured, and sales-focused.
     `;
   }
