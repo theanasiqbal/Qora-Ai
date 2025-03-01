@@ -178,7 +178,7 @@ export default function RotatingIntegrations() {
               mb: 10,
             }}
           >
-            Qora works in harmony with your existing software to help you
+            {process.env.NEXT_PUBLIC_NAME} works in harmony with your existing software to help you
             achieve more without the hassle of switching platforms. Say goodbye
             to disjointed processes and hello to a unified, streamlined
             solution.

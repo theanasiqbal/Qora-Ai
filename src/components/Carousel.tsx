@@ -40,7 +40,7 @@ const initialSlides = [
   // { id: 5, name: "Alex", image: "/image/carousel3.png" },
 ];
 
-export default function HorizontalInfiniteScroll() {
+export default function HorizontalInfiniteScroll({ stop, setAgent }) {
   const [items, setItems] = useState([...initialSlides]);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const loader = useRef<HTMLDivElement>(null);
@@ -91,16 +91,18 @@ export default function HorizontalInfiniteScroll() {
 
   useEffect(() => {
     // Set interval to scroll every 2 seconds
-    const intervalId = setInterval(() => {
-      scrollRight();
-    }, 2000); // 2000 milliseconds = 2 seconds
+    if (!stop) {
+      const intervalId = setInterval(() => {
+        scrollRight();
+      }, 2000); // 2000 milliseconds = 2 seconds
+      return () => clearInterval(intervalId);
+    }
 
     // Clean up interval on unmount
-    return () => clearInterval(intervalId);
   }, []);
 
   return (
-    <div className="relative max-w-7xl mx-auto p-6">
+    <div className="relative max-w-7xl  mx-auto p-6">
       {/* Scroll Buttons */}
       {/* <button
         onClick={scrollLeft}
@@ -118,11 +120,12 @@ export default function HorizontalInfiniteScroll() {
         {items.map((item) => (
           <div
             key={item.id}
-            className="flex-shrink-0 w-[20vw] h-[60vh] rounded-lg overflow-hidden bg-contain bg-top bg-no-repeat flex flex-col justify-end"
+            className={`flex-shrink-0 ${stop ? 'cursor-pointer' : ''} w-[20vw] h-[60vh] rounded-lg overflow-hidden bg-contain bg-top bg-no-repeat flex flex-col justify-end`}
             style={{
               scrollSnapAlign: "start",
               backgroundImage: `url(${item.image})`,
             }}
+            onClick={() => stop && setAgent(item.name)}
           >
             <Box key={item.id}>
               <h2 className="text-xl font-semibold text-center p-3 text-white-800">
@@ -143,7 +146,7 @@ export default function HorizontalInfiniteScroll() {
               >
                 {item.type}
               </Typography>
-              <Typography
+              {!stop && (<Typography
                 align="center"
                 variant="h4"
                 sx={{
@@ -157,7 +160,7 @@ export default function HorizontalInfiniteScroll() {
                 }}
               >
                 {item.description}
-              </Typography>
+              </Typography>)}
             </Box>
           </div>
         ))}

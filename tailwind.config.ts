@@ -78,7 +78,7 @@ const config = {
     },
   },
 
-  plugins: [require("tailwindcss-animate"), nextui()],
+  plugins: [require("tailwindcss-animate"), nextui(), require('@tailwindcss/typography'),],
 } satisfies Config;
 
 export default config;

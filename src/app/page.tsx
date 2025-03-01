@@ -12,7 +12,7 @@ import PricingPage from "@/components/PricingPage";
 
 export default function Home() {
   return (
-    <div className="relative flex flex-col bg-[#151221]">
+    <div className="relative flex flex-col bg-[#151221] ">
       <Hero />
       <AssistantList />
       <RotatingIntegrations />

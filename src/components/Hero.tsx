@@ -119,7 +119,7 @@ const Hero = () => {
             textShadow: "2px 2px 8px rgba(0, 0, 0, 0.6)",
           }}
         >
-          Qora
+          {process.env.NEXT_PUBLIC_NAME}
         </Typography>
 
         <Typography

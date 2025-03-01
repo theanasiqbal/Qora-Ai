@@ -76,7 +76,7 @@ const Footer = () => {
             </a>
           </div>
           <p className="text-[#9e95c6] text-base font-normal leading-normal">
-            ©2025 Qora AI. All rights reserved.
+            ©2025 {process.env.NEXT_PUBLIC_NAME} AI. All rights reserved.
           </p>
         </footer>
       </div>

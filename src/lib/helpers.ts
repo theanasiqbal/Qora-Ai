@@ -9,6 +9,11 @@ export const setCookie = (name: string, value: any, days: number) => {
 
 // Get cookie on client side
 export const getCookie = (cookieParam: string) => {
+
+  if (typeof document === "undefined") {
+    return null; // Return null if running on the server
+  }
+
   const cookies = document.cookie.split(";");
   const cookieObj = cookies.find((cookie) =>
     cookie.trim().startsWith(`${cookieParam}=`)
