@@ -15,7 +15,7 @@ export default function Home() {
     <div className="relative flex flex-col bg-[#151221] ">
       <Hero />
       <AssistantList />
-      <RotatingIntegrations />
+      {/* <RotatingIntegrations /> */}
       <SocialMedia />
       {/* <ToneList /> */}
       <Userjourney />

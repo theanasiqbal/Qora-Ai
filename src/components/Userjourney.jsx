@@ -8,7 +8,10 @@ import {
   createTheme,
   Grid2,
 } from "@mui/material";
-import { Bold } from "lucide-react";
+import { useMediaQuery } from "@mui/material";
+
+
+
 
 export default function UserJourney() {
   const [isVisible, setIsVisible] = useState(false);
@@ -66,15 +69,16 @@ export default function UserJourney() {
       description: "Users provide feedback to improve AI performance.",
     },
   ];
+  const isMobile = useMediaQuery("(max-width:600px)");
 
   return (
     <Box
       sx={{
-        backgroundColor: "transparent", // Dark background for neon contrast
+        backgroundColor: "transparent",
         color: "white",
         mt: 15,
-        minHeight: "110vh",
-        padding: 6,
+        minHeight: "100vh", // Adjust height for responsiveness
+        padding: { xs: 4, md: 6 }, // Add padding based on screen size
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -114,17 +118,23 @@ export default function UserJourney() {
       <Grid
         container
         spacing={4}
-        sx={{ maxWidth: 1200, position: "relative", zIndex: 2 }}
+        sx={{
+          maxWidth: "1200px", position: "relative", zIndex: 2,ml: "0",
+
+        }}
       >
         {/* Left Section: 3D Illustration */}
-        <Grid item xs={12} md={6}>
+        <Grid sx={{
+
+        }} item xs={12} md={6}>
           <Box
             ref={boxRef}
             sx={{
+              display: isMobile ? "none" : "block",
               backgroundImage: "url('/image/robo-team.jpg')",
               backgroundSize: "contain",
               backgroundPosition: "center",
-              height: "100%",
+              height: { xs: "50vh", md: "100%" }, // Set responsive height
               borderRadius: 3,
               boxShadow: "0 0 20px rgba(108, 93, 211, 0.6)",
               overflow: "hidden",
@@ -135,10 +145,6 @@ export default function UserJourney() {
                 "transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), " +
                 "box-shadow 0.5s ease-in-out",
               opacity: isVisible ? 1 : 0.7,
-              // "&:hover": {
-              //   transform: "perspective(1000px) rotateY(-10deg)",
-              //   boxShadow: "0 0 60px rgba(108, 93, 211, 0.8)",
-              // },
             }}
           ></Box>
         </Grid>
@@ -149,22 +155,24 @@ export default function UserJourney() {
           xs={12}
           md={6}
           sx={{
+            display:'flex',
+justifyContent:{
+  xs:'center', sm:"", md:" ",
+},
+
             borderRadius: 3,
             backgroundColor: "rgba(15, 15, 15, 0.8)",
             backdropFilter: "blur(12px)",
-            padding: 4,
+            padding: { xs: 3, md: 4 }, // Adjust padding based on screen size
             height: "100%",
-            // mb: 8,
             border: "1px solid rgba(108, 93, 211, 0.3)",
             boxShadow: "0 0 30px rgba(108, 93, 211, 0.4)",
-            marginTop: "4.5vh",
-            "&:hover": {
-              // boxShadow: "0 0 60px rgba(108, 93, 211, 0.8)",
-            },
+            marginTop: { xs: "2vh", md: "4.5vh" }, // Adjust margin based on screen size
             transition: "all 0.4s ease-in-out",
           }}
         >
           {/* Title with Neon Glow */}
+          <Box>
           <Typography
             align="center"
             variant="h2"
@@ -172,17 +180,7 @@ export default function UserJourney() {
             sx={{
               fontWeight: "Bold",
               marginBottom: 2,
-              fontSize: "2.35rem",
-              // background: "linear-gradient(45deg, #b3a6ff 20%, #ffffff 80%)",
-              // WebkitBackgroundClip: "text",
-              // WebkitTextFillColor: "transparent",
-              // textAlign: "center",
-              // position: "relative",
-              // animation: "glow 3s infinite alternate",
-              // "@keyframes glow": {
-              //   "0%": { textShadow: "0 0 10px rgba(179, 166, 255, 0.8)" },
-              //   "100%": { textShadow: "0 0 20px rgba(179, 166, 255, 1)" },
-              // },
+              fontSize: { xs: "1.8rem", md: "2.35rem" }, // Adjust font size for smaller screens
             }}
           >
             User Journey
@@ -198,6 +196,7 @@ export default function UserJourney() {
                 position: "absolute",
                 left: { xs: 0, md: 24 },
                 top: 0,
+
                 bottom: 0,
                 background:
                   "linear-gradient(180deg, #6c5dd3 0%, rgba(108, 93, 211, 0) 100%)",
@@ -261,8 +260,6 @@ export default function UserJourney() {
                     flexGrow: 1,
                     width: "100%",
                     border: "1px solid rgba(108, 93, 211, 0.3)",
-                    // boxShadow: "0 0 20px rgba(108, 93, 211, 0.4)",
-                    // transition: "all 0.3s",
                   }}
                 >
                   <Typography
@@ -291,8 +288,10 @@ export default function UserJourney() {
               </Box>
             ))}
           </Box>
+          </Box>
         </Grid>
       </Grid>
     </Box>
+
   );
 }

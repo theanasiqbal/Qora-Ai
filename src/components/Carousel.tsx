@@ -89,6 +89,7 @@ export default function HorizontalInfiniteScroll({ stop, setAgent }) {
     }
   };
 
+
   useEffect(() => {
     // Set interval to scroll every 2 seconds
     if (!stop) {
@@ -99,7 +100,19 @@ export default function HorizontalInfiniteScroll({ stop, setAgent }) {
     }
 
     // Clean up interval on unmount
-  }, []);
+// =======
+//    useEffect(() => {
+//     const scrollTime = window.innerWidth <= 768 ? 1000 : 2000; // Mobile ke liye 1s, desktop ke liye 2s
+
+//     const intervalId = setInterval(() => {
+//       scrollRight();
+//     }, scrollTime);
+
+//     return () => clearInterval(intervalId);
+// >>>>>>> master
+//   }, []);
+
+
 
   return (
     <div className="relative max-w-7xl  mx-auto p-6">
@@ -120,26 +133,24 @@ export default function HorizontalInfiniteScroll({ stop, setAgent }) {
         {items.map((item) => (
           <div
             key={item.id}
-            className={`flex-shrink-0 ${stop ? 'cursor-pointer' : ''} w-[20vw] h-[60vh] rounded-lg overflow-hidden bg-contain bg-top bg-no-repeat flex flex-col justify-end`}
+            className={`flex-shrink-0 ${stop ? 'cursor-pointer' : ''} w-full sm:w-[80vw] md:w-[40vw] lg:w-[20vw] h-[60vh] rounded-lg overflow-hidden bg-contain bg-transparent bg-top bg-no-repeat flex flex-col justify-end`}
             style={{
-              scrollSnapAlign: "start",
+              scrollSnapAlign: "center",
               backgroundImage: `url(${item.image})`,
             }}
             onClick={() => stop && setAgent(item.name)}
           >
-            <Box key={item.id}>
-              <h2 className="text-xl font-semibold text-center p-3 text-white-800">
+            <Box key={item.id} className="bg-opacity-90 pb-40 sm:pb-3 md:pb-2">
+              <h2 className="text-xl font-semibold text-center mb-2">
                 {item.name}
               </h2>
               <Typography
                 align="center"
                 variant="h4"
                 sx={{
-                  // fontWeight: "bold",
                   fontSize: { xs: "1rem", md: "0.9rem" },
-                  // mb: 10,
-                  wordWrap: "break-word", // Ensure the text wraps
-                  whiteSpace: "normal", // Ensure text does not overflow in a single line
+                  wordWrap: "break-word",
+                  whiteSpace: "normal",
                   textAlign: "center",
                   marginBottom: "1rem",
                 }}
@@ -150,11 +161,9 @@ export default function HorizontalInfiniteScroll({ stop, setAgent }) {
                 align="center"
                 variant="h4"
                 sx={{
-                  // fontWeight: "bold",
-                  fontSize: { xs: "1rem", md: "0.9rem" },
-                  // mb: 10,
-                  wordWrap: "break-word", // Ensure the text wraps
-                  whiteSpace: "normal", // Ensure text does not overflow in a single line
+                  fontSize: { xs: ".8rem", md: "0.9rem" },
+                  wordWrap: "break-word",
+                  whiteSpace: "normal",
                   textAlign: "center",
                   color: "grey",
                 }}
