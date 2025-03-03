@@ -3,6 +3,7 @@
 import { Button, Textarea } from "@nextui-org/react";
 import { Send } from "lucide-react";
 import { type useChat } from "ai/react";
+import { Ref } from "react";
 
 type HandleInputChange = ReturnType<typeof useChat>["handleInputChange"];
 type HandleSubmit = ReturnType<typeof useChat>["handleSubmit"];
@@ -13,12 +14,13 @@ interface ChatInputProps {
   handleInputChange: HandleInputChange;
   handleSubmit: HandleSubmit;
   setInput: SetInput;
+  formRef: any
 }
 
-export const ChatInput = ({ handleInputChange, handleSubmit, input, setInput }: ChatInputProps) => {
+export const ChatInput = ({ handleInputChange, handleSubmit, input, setInput, formRef }: ChatInputProps) => {
   return (
     <div className="z-10 bg-[#151221] bottom-0 left-0 w-full border p-4">
-      <form onSubmit={handleSubmit} className="relative max-w-4xl mx-auto">
+      <form ref={formRef} onSubmit={handleSubmit} className="relative max-w-4xl mx-auto">
         <Textarea
           minRows={4}
           autoFocus

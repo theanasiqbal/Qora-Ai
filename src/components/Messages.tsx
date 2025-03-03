@@ -1,17 +1,28 @@
-import { type Message as TMessage } from "ai/react";
+import { useChat, type Message as TMessage } from "ai/react";
 import { Message } from "./Message";
-import { MessageSquare } from "lucide-react";
+import { BarChart, Lightbulb, Mail, MessageSquare, Share2 } from "lucide-react";
 import React, { useEffect, useRef } from "react";
+
+type HandleSubmit = ReturnType<typeof useChat>["handleSubmit"];
+type SetInput = ReturnType<typeof useChat>["setInput"];
 
 interface MessagesProps {
   messages: TMessage[];
   isLoading: boolean;
   onShareClick: any;
+  handlePromptButton: any
 }
 // wrap inside React.Memo
 export const Messages = React.memo(
-  ({ messages, isLoading, onShareClick }: MessagesProps) => {
+  ({
+    messages,
+    isLoading,
+    onShareClick,
+    handlePromptButton
+  }: MessagesProps) => {
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+
 
     // Smooth scrolling function
     useEffect(() => {
@@ -35,11 +46,62 @@ export const Messages = React.memo(
             />
           ))
         ) : (
-          <div className="flex flex-1 flex-col items-center justify-center gap-2">
+          <div className="flex flex-1 flex-col items-center justify-center gap-4">
             <MessageSquare className="size-8 text-blue-500" />
             <h3 className="font-semibold text-xl text-white">
               You&apos;re all set!
             </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-xl px-4">
+              <button
+                className="flex items-center gap-2 px-2 py-1.5 hover:bg-violet-800/20 text-violet-200 rounded-lg border border-violet-700/50 transition-colors text-sm text-left"
+                onClick={() => {
+                  handlePromptButton(
+                    "Write a persuasive cold email using Sales document."
+                  );
+                }}
+              >
+                <Mail size={30} className="mr-2 text-violet-400" />
+                <span>Write a persuasive cold email using Sales document.</span>
+              </button>
+
+              <button
+                className="flex items-center gap-2 px-2 py-1.5 hover:bg-violet-800/50 text-violet-200 rounded-lg border border-violet-700/50 transition-colors text-sm text-left"
+                onClick={() => {
+                  handlePromptButton(
+                    "Create an engaging social media post for our products."
+                  );
+                }}
+              >
+                <Share2 size={30} className="mr-2 text-violet-400" />
+                <span>
+                  Create an engaging social media post for our products.
+                </span>
+              </button>
+
+              <button
+                className="flex items-center gap-2 px-2 py-1.5 hover:bg-violet-800/50 text-violet-200 rounded-lg border border-violet-700/50 transition-colors text-sm text-left"
+                onClick={() => {
+                  handlePromptButton(
+                    "Compare this product/service with competitors."
+                  );
+                }}
+              >
+                <BarChart size={30} className="mr-2 text-violet-400" />
+                <span>Compare this product/service with competitors.</span>
+              </button>
+
+              <button
+                className="flex items-center gap-2 px-2 py-1.5 hover:bg-violet-800/50 text-violet-200 rounded-lg border border-violet-700/50 transition-colors text-sm text-left"
+                onClick={() => {
+                  handlePromptButton("Explain features of Karya.io.");
+                }}
+              >
+                <Lightbulb size={22} className="mr-2 text-violet-400" />
+                <span>Explain features of Karya.io.</span>
+              </button>
+            </div>
+
             <p className="text-zinc-500 text-sm">
               Ask your first question to get started.
             </p>

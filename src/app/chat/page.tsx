@@ -2,82 +2,106 @@ import { ChatWrapper } from "@/components/ChatWrapper";
 import { ragChat } from "@/lib/rag-chat";
 import { redis } from "@/lib/redis";
 import { cookies } from "next/headers";
-
-import path from 'path'
+import path from 'path';
+import fs from 'fs/promises';
 
 interface PageProps {
-  params: {
-    url: string | string[] | undefined;
-  };
+  params: { url: string | string[] | undefined; };
 }
 
 function reconstructUrl({ url }: { url: string[] }) {
   const decodedComponents = url.map((component) => decodeURIComponent(component));
-
   return decodedComponents.join("/");
 }
 
 const Page = async ({ params }: PageProps) => {
-  // const sessionCookie = cookies().get("sessionId")?.value;
   const company = cookies().get("company")?.value;
-  const selectedItem = cookies().get("selectedItem")?.value;
-
+  
   // Parse the JSON if it exists
   let companyEmail = "Unknown";
   let companyName = "Unknown";
-  let folderName = "Unknown";
-  let fileName = "Unknown";
-
+  
   try {
     if (company) {
       const companyData = JSON.parse(company);
       companyName = companyData.name || "Unknown";
       companyEmail = companyData.email || "Unknown";
     }
-
+  } catch (error) {
+    console.error("Error parsing cookies:", error);
+  }
+  
+  // Get the base directory for the company's data
+  const companyDirPath = path.join(process.cwd(), "public", "data", companyName);
+  
+  // Create a function to recursively process all files in the company directory
+  async function processAllFiles() {
+    try {
+      // Read all folders in the company directory
+      const folders = await fs.readdir(companyDirPath);
+      
+      for (const folder of folders) {
+        const folderPath = path.join(companyDirPath, folder);
+        const folderStat = await fs.stat(folderPath);
+        
+        // Skip if not a directory
+        if (!folderStat.isDirectory()) continue;
+        
+        // Read all files in the folder
+        const files = await fs.readdir(folderPath);
+        
+        for (const file of files) {
+          // Only process PDF files
+          if (!file.toLowerCase().endsWith('.pdf')) continue;
+          
+          const filePath = path.join(folderPath, file);
+          const sessionId = `${companyEmail}-${companyName}-${folder}-${file}`.replace(/\//g, "");
+          
+          // Check if already indexed
+          const isAlreadyIndexed = await redis.sismember(companyName, filePath);
+          
+          if (!isAlreadyIndexed) {
+            // Add the PDF context
+            await ragChat.context.add({
+              type: "pdf",
+              fileSource: filePath,
+            });
+            
+            // Mark as indexed in Redis
+            await redis.sadd(companyName, filePath);
+            console.log(`Indexed: ${filePath}`);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error processing files:", error);
+    }
+  }
+  
+  // Process all files when the page loads
+  await processAllFiles();
+  
+  // For the current selected item (still keeping this for the chat session)
+  const selectedItem = cookies().get("selectedItem")?.value;
+  let folderName = "Unknown";
+  let fileName = "Unknown";
+  
+  try {
     if (selectedItem) {
       const selectedItemData = JSON.parse(selectedItem);
       folderName = selectedItemData.folder || "Unknown";
       fileName = selectedItemData.file || "Unknown";
     }
   } catch (error) {
-    console.error("Error parsing cookies:", error);
+    console.error("Error parsing selected item:", error);
   }
-
-  // const reconstructedUrl = reconstructUrl({ url: params.url as string[] });
-
-  // Get the local file path to the PDF
-  const pdfPath = path.join(process.cwd(), "public", "data", companyName, folderName, fileName);
-
-  const sessionId = `${companyEmail}-${companyName}-${folderName}-${fileName}`.replace(/\//g, "")
-
-  const isAlreadyIndexed = await redis.sismember(companyName, pdfPath);
-
-  const initialMessages = await ragChat.history.getMessages({ amount: 10, sessionId });
-
-  if (!isAlreadyIndexed) {
-
-    //   // await ragChat.context.add({
-    //   //   type: "text",
-    //   //   data: `You are a concise Sales AI assistant named Cooper.
-    //   //   Answer the user's question **directly**. **Do not** include phrases like "Based on the context" or "According to the given information"
-    //   //   `,
-    //   // });
-
-    await ragChat.context.add({
-      type: "pdf",
-      fileSource: pdfPath,
-    });
-
-    //   // await ragChat.context.add({
-    //   //   type: "html",
-    //   //   source: reconstructedUrl,
-    //   //   config: { chunkOverlap: 50, chunkSize: 200 },
-    //   // });
-
-    await redis.sadd(companyName, pdfPath);
-  }
-
+  
+  const sessionId = `${companyEmail}-${companyName}-${folderName}-${fileName}`.replace(/\//g, "");
+  const initialMessages = await ragChat.history.getMessages({
+    amount: 10,
+    sessionId,
+  });
+  
   return <ChatWrapper sessionId={sessionId} initialMessages={initialMessages} />;
 };
 

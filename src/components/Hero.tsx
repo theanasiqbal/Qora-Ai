@@ -150,7 +150,7 @@ const Hero = () => {
             marginTop: 2,
           }}
         >
-          AI - Powered Assitants Designed for <br /> Businesses and Freelancers
+          AI - Powered Assistants Designed for <br /> Businesses and Freelancers
         </Typography>
 
         <Button
