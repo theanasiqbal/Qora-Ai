@@ -89,7 +89,6 @@ export default function HorizontalInfiniteScroll({ stop, setAgent }) {
     }
   };
 
-
   useEffect(() => {
     // Set interval to scroll every 2 seconds
     if (!stop) {
@@ -98,21 +97,7 @@ export default function HorizontalInfiniteScroll({ stop, setAgent }) {
       }, 2000); // 2000 milliseconds = 2 seconds
       return () => clearInterval(intervalId);
     }
-
-    // Clean up interval on unmount
-// =======
-//    useEffect(() => {
-//     const scrollTime = window.innerWidth <= 768 ? 1000 : 2000; // Mobile ke liye 1s, desktop ke liye 2s
-
-//     const intervalId = setInterval(() => {
-//       scrollRight();
-//     }, scrollTime);
-
-//     return () => clearInterval(intervalId);
-// >>>>>>> master
-//   }, []);
-
-
+  }, []);
 
   return (
     <div className="relative max-w-7xl  mx-auto p-6">

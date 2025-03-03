@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import { Box, Typography, Button, Paper } from "@mui/material";
-const isMobile = window.matchMedia("(max-width: 768px)").matches;
 
 const SocialMedia = () => {
   return (
