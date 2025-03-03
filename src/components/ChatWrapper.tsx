@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Message, useChat } from "ai/react";
 import {
   Menu,
@@ -52,7 +52,7 @@ export const ChatWrapper = ({
   } | null>(null);
   const [isFormattingPanelOpen, setIsFormattingPanelOpen] = useState(false);
   const [formattedContent, setFormattedContent] = useState("");
-
+  const formRef = useRef<HTMLFormElement>(null);
   // Function to apply formatting
   // const applyFormatting = (tag: string) => {
   //   setFormattedContent((prev) => prev + ` <${tag}></${tag}> `);
@@ -108,31 +108,43 @@ export const ChatWrapper = ({
   };
 
   const copyFormattedText = async () => {
-      // Create a Blob with HTML content type
-      const htmlBlob = new Blob([formattedContent], { type: "text/html" });
+    // Create a Blob with HTML content type
+    const htmlBlob = new Blob([formattedContent], { type: "text/html" });
 
-      // Create a ClipboardItem with the HTML blob
-      const clipboardItem = new ClipboardItem({
-        "text/html": htmlBlob,
-        "text/plain": new Blob([formattedContent], { type: "text/plain" }),
-      });
+    // Create a ClipboardItem with the HTML blob
+    const clipboardItem = new ClipboardItem({
+      "text/html": htmlBlob,
+      "text/plain": new Blob([formattedContent], { type: "text/plain" }),
+    });
 
-      // Write to clipboard with format
-      await navigator.clipboard.write([clipboardItem]);
-    
+    // Write to clipboard with format
+    await navigator.clipboard.write([clipboardItem]);
   };
 
   const copyPlainText = () => {
     // Create a temporary DOM element
     const tempElement = document.createElement("div");
     tempElement.innerHTML = formattedContent; // Set the HTML content
-  
+
     // Extract plain text
     const plainText = tempElement.textContent || tempElement.innerText;
-  
+
     // Copy to clipboard
-    navigator.clipboard.writeText(plainText)
+    navigator.clipboard.writeText(plainText);
   };
+
+  const handlePromptButton = (promptText: string) => {
+    setInput((prevInput) => {
+      const updatedInput = promptText;
+      // Submit after the state is set
+      setTimeout(() => {
+        formRef.current?.requestSubmit();
+      }, 0);
+  
+      return updatedInput;
+    });
+  };
+  
 
   return (
     <div className="relative bg-[#151221] flex divide-x divide-zinc-700 h-full">
@@ -164,7 +176,9 @@ export const ChatWrapper = ({
             ✕
           </button>
 
-          <h3 className="text-xl font-semibold mb-4">{process.env.NEXT_PUBLIC_NAME}</h3>
+          <h3 className="text-xl font-semibold mb-4">
+            {process.env.NEXT_PUBLIC_NAME}
+          </h3>
           {folders.length > 0 ? (
             <ul className="space-y-2">
               {folders.map((folder) => (
@@ -222,6 +236,7 @@ export const ChatWrapper = ({
             messages={messages}
             isLoading={isLoading}
             onShareClick={handleShareClick}
+            handlePromptButton={handlePromptButton}
           />
         </div>
         <ChatInput
@@ -229,6 +244,7 @@ export const ChatWrapper = ({
           handleInputChange={handleInputChange}
           handleSubmit={handleSubmit}
           setInput={setInput}
+          formRef={formRef}
         />
       </div>
 
