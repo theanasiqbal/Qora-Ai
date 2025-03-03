@@ -40,7 +40,7 @@ const initialSlides = [
   // { id: 5, name: "Alex", image: "/image/carousel3.png" },
 ];
 
-export default function HorizontalInfiniteScroll() {
+export default function HorizontalInfiniteScroll({ stop, setAgent }) {
   const [items, setItems] = useState([...initialSlides]);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const loader = useRef<HTMLDivElement>(null);
@@ -89,20 +89,33 @@ export default function HorizontalInfiniteScroll() {
     }
   };
 
-   useEffect(() => {
-    const scrollTime = window.innerWidth <= 768 ? 1000 : 2000; // Mobile ke liye 1s, desktop ke liye 2s
 
-    const intervalId = setInterval(() => {
-      scrollRight();
-    }, scrollTime);
+  useEffect(() => {
+    // Set interval to scroll every 2 seconds
+    if (!stop) {
+      const intervalId = setInterval(() => {
+        scrollRight();
+      }, 2000); // 2000 milliseconds = 2 seconds
+      return () => clearInterval(intervalId);
+    }
 
-    return () => clearInterval(intervalId);
-  }, []);
+    // Clean up interval on unmount
+// =======
+//    useEffect(() => {
+//     const scrollTime = window.innerWidth <= 768 ? 1000 : 2000; // Mobile ke liye 1s, desktop ke liye 2s
+
+//     const intervalId = setInterval(() => {
+//       scrollRight();
+//     }, scrollTime);
+
+//     return () => clearInterval(intervalId);
+// >>>>>>> master
+//   }, []);
 
 
 
   return (
-    <div className="relative max-w-7xl mx-auto p-6">
+    <div className="relative max-w-7xl  mx-auto p-6">
       {/* Scroll Buttons */}
       {/* <button
         onClick={scrollLeft}
@@ -120,11 +133,12 @@ export default function HorizontalInfiniteScroll() {
         {items.map((item) => (
           <div
             key={item.id}
-            className="flex-shrink-0 w-full sm:w-[80vw] md:w-[40vw] lg:w-[20vw] h-[60vh] rounded-lg overflow-hidden bg-contain bg-transparent bg-top bg-no-repeat flex flex-col justify-end"
+            className={`flex-shrink-0 ${stop ? 'cursor-pointer' : ''} w-full sm:w-[80vw] md:w-[40vw] lg:w-[20vw] h-[60vh] rounded-lg overflow-hidden bg-contain bg-transparent bg-top bg-no-repeat flex flex-col justify-end`}
             style={{
               scrollSnapAlign: "center",
               backgroundImage: `url(${item.image})`,
             }}
+            onClick={() => stop && setAgent(item.name)}
           >
             <Box key={item.id} className="bg-opacity-90 pb-40 sm:pb-3 md:pb-2">
               <h2 className="text-xl font-semibold text-center mb-2">
@@ -143,7 +157,7 @@ export default function HorizontalInfiniteScroll() {
               >
                 {item.type}
               </Typography>
-              <Typography
+              {!stop && (<Typography
                 align="center"
                 variant="h4"
                 sx={{
@@ -155,7 +169,7 @@ export default function HorizontalInfiniteScroll() {
                 }}
               >
                 {item.description}
-              </Typography>
+              </Typography>)}
             </Box>
           </div>
         ))}

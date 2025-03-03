@@ -20,7 +20,7 @@ export const ChatInput = ({ handleInputChange, handleSubmit, input, setInput }: 
     <div className="z-10 bg-[#151221] bottom-0 left-0 w-full border p-4">
       <form onSubmit={handleSubmit} className="relative max-w-4xl mx-auto">
         <Textarea
-          minRows={6}
+          minRows={4}
           autoFocus
           onChange={handleInputChange}
           value={input}

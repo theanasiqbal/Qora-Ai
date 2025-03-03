@@ -23,12 +23,12 @@ export default function RootLayout({
       <body
         className={cn(
           inter.className,
-          "h-screen flex flex-col antialiased dark text-foreground bg-background"
+          "h-screen flex flex-col antialiased dark text-foreground bg-background scroll-bar"
         )}
       >
         <Providers>
           <AppBar />
-          <main className="flex-1  flex flex-col dark text-foreground bg-background h-[95vh]">
+          <main className="flex-1  flex flex-col dark text-foreground bg-background h-[94vh]">
             {children}
           </main>
         </Providers>

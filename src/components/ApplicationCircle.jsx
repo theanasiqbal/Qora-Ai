@@ -187,6 +187,22 @@ export default function RotatingIntegrations() {
           to disjointed processes and hello to a unified, streamlined
           solution.
         </Typography>
+        <Box sx={{ width: "60%" }}>
+          <Typography
+            align="center"
+            variant="h4"
+            sx={{
+              // fontWeight: "bold",
+              fontSize: { xs: "1rem", md: "1.2rem" },
+              mb: 10,
+            }}
+          >
+            {process.env.NEXT_PUBLIC_NAME} works in harmony with your existing software to help you
+            achieve more without the hassle of switching platforms. Say goodbye
+            to disjointed processes and hello to a unified, streamlined
+            solution.
+          </Typography>
+        </Box>
       </Box>
     </Box>
   

@@ -150,8 +150,51 @@ xs:'none', md:'flex'
           marginTop: 2,
         }}
       >
-        AI - Powered Assistants Designed for <br /> Businesses and Freelancers
-      </Typography>
+        <Typography
+          variant="h1"
+          sx={{
+            fontWeight: "bold",
+            fontSize: "6rem",
+            lineHeight: 1.2,
+            color: "white",
+            letterSpacing: "-1px",
+            maxWidth: "800px",
+            opacity: 0.9,
+            textTransform: "uppercase",
+            textShadow: "2px 2px 8px rgba(0, 0, 0, 0.6)",
+          }}
+        >
+          {process.env.NEXT_PUBLIC_NAME}
+        </Typography>
+
+        <Typography
+          variant="h4"
+          sx={{
+            color: "rgba(255, 255, 255, 0.8)",
+            fontSize: "22px",
+            maxWidth: "700px",
+            letterSpacing: "0.3px",
+            opacity: 0.8,
+            fontWeight: 500,
+            marginTop: 1,
+          }}
+        >
+          Your Smart Partner for Seamless Productivity
+        </Typography>
+
+        <Typography
+          variant="body1"
+          sx={{
+            color: "rgba(255, 255, 255, 0.8)",
+            fontSize: "18px",
+            maxWidth: "600px",
+            letterSpacing: "0.2px",
+            opacity: 0.7,
+            marginTop: 2,
+          }}
+        >
+          AI - Powered Assitants Designed for <br /> Businesses and Freelancers
+        </Typography>
   
       <Button
         variant="contained"
