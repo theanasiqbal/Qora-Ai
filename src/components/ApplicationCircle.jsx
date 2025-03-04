@@ -1,6 +1,7 @@
 "use client";
 import { Box, styled, Tooltip, Typography } from "@mui/material";
 import { Bot } from "lucide-react";
+import { useEffect, useState } from "react";
 
 // Styled components for the visualization
 const Container = styled(Box)({
@@ -118,83 +119,83 @@ const apps = [
 ];
 
 export default function RotatingIntegrations() {
+  const [radius, setRadius] = useState(220); // Default size
+
+  useEffect(() => {
+    const updateRadius = () => {
+      const newRadius =
+        window.innerWidth < 600 ? 120 : window.innerWidth < 900 ? 180 : 220;
+      setRadius(newRadius);
+    };
+
+    updateRadius(); // Set initial value
+    window.addEventListener("resize", updateRadius);
+
+    return () => window.removeEventListener("resize", updateRadius);
+  }, []);
+
   return (
     <Container
-    sx={{
-      backgroundColor: "transparent",
-      position: "relative",
-      display: "flex",
-      flexDirection: { xs: "column", md: "row" },
-      alignItems: "center",
-      justifyContent: "center",
-      textAlign: "center",
-      "&:before": {
-        content: '""',
-        position: "absolute",
-        width: { xs: "300px", sm: "450px", md: "600px" },
-        height: { xs: "300px", sm: "450px", md: "600px" },
-        background:
-          "radial-gradient(circle, rgba(113, 47, 255, 0.15) 0%, transparent 70%)",
-        top: { xs: "10%", md: "20%" },
-        left: { xs: "5%", md: "10%" },
-      },
-      "&:after": {
-        content: '""',
-        position: "absolute",
-        width: { xs: "200px", sm: "300px", md: "400px" },
-        height: { xs: "200px", sm: "300px", md: "400px" },
-        background:
-          "radial-gradient(circle, rgba(113, 47, 255, 0.15) 0%, transparent 70%)",
-        top: { xs: "5%", md: "10%" },
-        left: { xs: "40%", md: "60%" },
-      },
-    }}
-  >
-    <Box
       sx={{
-        height: { xs: "auto", md: "50vh" },
-        width: { xs: "90%", md: "50%" },
+        backgroundColor: "transparent",
+        position: "relative",
         display: "flex",
-        flexDirection: "column",
+        flexDirection: { xs: "column", md: "row" },
         alignItems: "center",
         justifyContent: "center",
         textAlign: "center",
-        mb: { xs: 5, md: 0 },
+        "&:before": {
+          content: '""',
+          position: "absolute",
+          width: { xs: "300px", sm: "450px", md: "600px" },
+          height: { xs: "300px", sm: "450px", md: "600px" },
+          background:
+            "radial-gradient(circle, rgba(113, 47, 255, 0.15) 0%, transparent 70%)",
+          top: { xs: "10%", md: "20%" },
+          left: { xs: "5%", md: "10%" },
+        },
+        "&:after": {
+          content: '""',
+          position: "absolute",
+          width: { xs: "200px", sm: "300px", md: "400px" },
+          height: { xs: "200px", sm: "300px", md: "400px" },
+          background:
+            "radial-gradient(circle, rgba(113, 47, 255, 0.15) 0%, transparent 70%)",
+          top: { xs: "5%", md: "10%" },
+          left: { xs: "40%", md: "60%" },
+        },
       }}
     >
-      <Typography
-        align="center"
-        variant="h2"
+      <Box
         sx={{
-          fontWeight: "bold",
-          fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" },
-          mb: 3,
+          height: { xs: "auto", md: "50vh" },
+          width: { xs: "90%", md: "50%" },
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          mb: { xs: 5, md: 0 },
         }}
       >
-        Integrates with <br /> your favorite tools.
-      </Typography>
-      <Box sx={{ width: { xs: "80%", md: "60%" } }}>
         <Typography
           align="center"
-          variant="h4"
+          variant="h2"
           sx={{
-            fontSize: { xs: "1rem", sm: "1.1rem", md: "1.2rem" },
-            mb: 5,
+            fontWeight: "bold",
+            fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" },
+            mb: 3,
           }}
         >
-          Qora works in harmony with your existing software to help you
-          achieve more without the hassle of switching platforms. Say goodbye
-          to disjointed processes and hello to a unified, streamlined
-          solution.
+          Integrates with <br /> your favorite tools.
         </Typography>
-        <Box sx={{ width: "60%" }}>
+        <Box sx={{ width: { xs: "80%", md: "60%" } }}>
           <Typography
             align="center"
             variant="h4"
             sx={{
-              // fontWeight: "bold",
-              fontSize: { xs: "1rem", md: "1.2rem" },
-              mb: 10,
+              fontSize: { xs: "1rem", sm: "1.1rem", md: "1.2rem" },
+              mb: 5,
             }}
           >
             {process.env.NEXT_PUBLIC_NAME} works in harmony with your existing software to help you
@@ -204,62 +205,60 @@ export default function RotatingIntegrations() {
           </Typography>
         </Box>
       </Box>
-    </Box>
-  
-    <Circle sx={{ position: "relative", mr: { xs: 0, md: 10 } }}>
-      {/* Center Logo */}
-      <CenterLogo
-        sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-        }}
-      >
-        <Bot className="size-10 text-white" />
-      </CenterLogo>
-  
-      {/* Apps mapped around the center */}
-      {apps.map((app, index) => {
-        const angle = (360 / apps.length) * index;
-        const radian = (angle * Math.PI) / 180;
-        const radius = { xs: 120, sm: 180, md: 220 }[window.innerWidth < 600 ? "xs" : window.innerWidth < 900 ? "sm" : "md"]; 
-  
-        const x = Math.cos(radian) * radius;
-        const y = Math.sin(radian) * radius;
-  
-        return (
-          <Tooltip
-            key={app.id}
-            title={
-              <Box sx={{ p: 1 }}>
-                <strong>{app.name}</strong>
-                <br />
-                {app.description}
-              </Box>
-            }
-            arrow
-            placement="top"
-          >
-            <Icon
-              sx={{
-                position: "absolute",
-                left: `calc(50% + ${x}px)`,
-                top: `calc(50% + ${y}px)`,
-                transform: "translate(-50%, -50%)",
-              }}
+
+      <Circle sx={{ position: "relative", mr: { xs: 0, md: 10 } }}>
+        {/* Center Logo */}
+        <CenterLogo
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+          }}
+        >
+          <Bot className="size-10 text-white" />
+        </CenterLogo>
+
+        {/* Apps mapped around the center */}
+        {apps.map((app, index) => {
+          const angle = (360 / apps.length) * index;
+          const radian = (angle * Math.PI) / 180;
+
+          const x = Math.cos(radian) * radius;
+          const y = Math.sin(radian) * radius;
+
+          return (
+            <Tooltip
+              key={app.id}
+              title={
+                <Box sx={{ p: 1 }}>
+                  <strong>{app.name}</strong>
+                  <br />
+                  {app.description}
+                </Box>
+              }
+              arrow
+              placement="top"
             >
-              <img
-                className={app.class || ""}
-                src={app.icon || "/placeholder.svg"}
-                alt={app.name}
-              />
-            </Icon>
-          </Tooltip>
-        );
-      })}
-    </Circle>
-  </Container>
-  
+              <Icon
+                sx={{
+                  position: "absolute",
+                  left: `calc(50% + ${x}px)`,
+                  top: `calc(50% + ${y}px)`,
+                  transform: "translate(-50%, -50%)",
+                }}
+              >
+                <img
+                  className={app.class || ""}
+                  src={app.icon || "/placeholder.svg"}
+                  alt={app.name}
+                />
+              </Icon>
+            </Tooltip>
+          );
+        })}
+      </Circle>
+    </Container>
+
   );
 }

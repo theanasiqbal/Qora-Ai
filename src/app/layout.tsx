@@ -9,7 +9,7 @@ import Footer from "@/components/Footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Qora.ai",
+  title: `${process.env.NEXT_PUBLIC_NAME}.ai`,
   description: "AI Assistants for making your work faster.",
 };
 

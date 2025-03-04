@@ -100,7 +100,7 @@ export default function HorizontalInfiniteScroll({ stop, setAgent }) {
   }, []);
 
   return (
-    <div className="relative max-w-7xl  mx-auto p-6">
+    <div className={`relative ${stop ? 'max-w-8xl': 'max-w-full'} mx-auto p-6`}>
       {/* Scroll Buttons */}
       {/* <button
         onClick={scrollLeft}

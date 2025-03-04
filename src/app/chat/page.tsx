@@ -55,7 +55,6 @@ const Page = async ({ params }: PageProps) => {
           if (!file.toLowerCase().endsWith('.pdf')) continue;
           
           const filePath = path.join(folderPath, file);
-          const sessionId = `${companyEmail}-${companyName}-${folder}-${file}`.replace(/\//g, "");
           
           // Check if already indexed
           const isAlreadyIndexed = await redis.sismember(companyName, filePath);
