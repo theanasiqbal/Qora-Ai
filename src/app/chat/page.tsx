@@ -83,19 +83,22 @@ const Page = async ({ params }: PageProps) => {
   // For the current selected item (still keeping this for the chat session)
   const selectedItem = cookies().get("selectedItem")?.value;
   let folderName = "Unknown";
-  let fileName = "Unknown";
   
   try {
     if (selectedItem) {
       const selectedItemData = JSON.parse(selectedItem);
       folderName = selectedItemData.folder || "Unknown";
-      fileName = selectedItemData.file || "Unknown";
     }
   } catch (error) {
     console.error("Error parsing selected item:", error);
   }
+  let chatId = cookies().get('chatId')?.value; // Retrieve chatId from cookie
+
+  if (!chatId) {
+    chatId =  "Unknown"
+  }
   
-  const sessionId = `${companyEmail}-${companyName}-${folderName}-${fileName}`.replace(/\//g, "");
+  const sessionId = `${companyName}-${folderName}-${chatId}`.replace(/\//g, "");
   const initialMessages = await ragChat.history.getMessages({
     amount: 10,
     sessionId,

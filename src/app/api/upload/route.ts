@@ -1,7 +1,8 @@
 import { writeFile, mkdir } from "fs/promises";
 import { NextResponse } from "next/server";
 import path from "path";
-import fs from "fs"
+import fs from "fs";
+import { cookies } from "next/headers";
 
 export async function POST(req) {
   try {
@@ -10,7 +11,7 @@ export async function POST(req) {
     const folder = data.get("folder"); // Get folder name (e.g., "Legal Documents")
     const files = data.getAll("files"); // Get multiple files
 
-    if (!name || !folder || files.length === 0) {
+    if (!name || !folder ) {
       return NextResponse.json(
         { error: "Name, folder, and files are required!" },
         { status: 400 }
@@ -37,15 +38,25 @@ export async function POST(req) {
       { status: 200 }
     );
   } catch (error) {
-    return NextResponse.json(
-      { error: "File upload failed!" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "File upload failed!" }, { status: 500 });
   }
 }
 
 export async function GET() {
-  const companyName = "Codevamp"; // Hardcoded company name
+  // Get cookies using next/headers
+  const cookieStore = cookies();
+  const company = cookieStore.get("company")?.value;
+
+  let companyName = "Unknown";
+  try {
+    if (company) {
+      const companyData = JSON.parse(company);
+      companyName = companyData.name || "Unknown";
+    }
+  } catch (error) {
+    console.error("Error parsing cookies:", error);
+  }
+
   const basePath = path.join(process.cwd(), "public", "data", companyName);
 
   try {
@@ -70,6 +81,9 @@ export async function GET() {
 
     return NextResponse.json({ success: true, data: folders });
   } catch (error) {
-    return NextResponse.json({ success: false, error: "Error fetching folders & files" });
+    return NextResponse.json({
+      success: false,
+      error: "Error fetching folders & files",
+    });
   }
 }

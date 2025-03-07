@@ -44,6 +44,7 @@
     "framer-motion": "^12.3.1",
     "gsap": "^3.12.7",
     "ioredis": "^5.5.0",
+    "jsforce": "^3.6.6",
     "lucide-react": "^0.424.0",
     "marked": "^15.0.7",
     "next": "14.2.11",

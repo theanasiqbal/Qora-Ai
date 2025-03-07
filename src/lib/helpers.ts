@@ -2,10 +2,14 @@
 export const setCookie = (name: string, value: any, days: number) => {
   const expires = new Date();
   expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-  document.cookie = `${name}=${JSON.stringify(
-    value
-  )};expires=${expires.toUTCString()};path=/`;
+  
+  // Store raw value if it's a string or number
+  const formattedValue =
+    typeof value === "string" || typeof value === "number" ? value : JSON.stringify(value);
+
+  document.cookie = `${name}=${formattedValue};expires=${expires.toUTCString()};path=/`;
 };
+
 
 // Get cookie on client side
 export const getCookie = (cookieParam: string) => {
@@ -42,9 +46,20 @@ export const clearCookie = (name: string) => {
 
 // Get initials from name
 export const getInitials = (name: string) => {
+
+  if (name.includes("-")) {
+    const length = name.split(" ")[0].length
+    if(length > 2){
+      return name.split(" ")[0].slice(0,2)
+    } else {
+      return name.split(" ")[0]
+    }
+  }
+
   return name
     .split(" ")
     .map((word) => word[0])
     .join("")
     .toUpperCase();
 };
+

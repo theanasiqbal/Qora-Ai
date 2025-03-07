@@ -34,7 +34,7 @@ export const ChatInput = ({ handleInputChange, handleSubmit, input, setInput, fo
             }
           }}
           placeholder="Message Oliver..."
-          className="resize-none bg-zinc-800 hover:bg-zinc-900 rounded-xl text-base w-full"
+          className="resize-none bg-zinc-800 hover:bg-zinc-900 focus:!ring-violet-600 rounded-xl text-base w-full"
         />
         <Button
           size="sm"

@@ -8,6 +8,7 @@ const AppBar = () => {
   const [company, setCompany] = useState<any>(null); // Ensure state starts as null
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const [initials, setInitials] = useState("")
 
   // Fetch company data only on the client
   useEffect(() => {
@@ -15,6 +16,7 @@ const AppBar = () => {
     if (companyData) {
       try {
         setCompany(companyData); // Ensure it's properly parsed
+        setInitials(getInitials(companyData.name))
       } catch (error) {
         console.error("Error parsing company cookie:", error);
       }
@@ -56,8 +58,8 @@ const AppBar = () => {
               className="flex items-center gap-2 cursor-pointer"
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
-              <div className="w-6 h-6 bg-purple-600 text-white font-bold flex items-center justify-center rounded-full">
-                {getInitials(company.name)}
+              <div className={`w-6 h-6 bg-purple-600 ${initials.length === 1 ? "text-sm" : "text-xs"} text-white font-bold flex items-center justify-center rounded-full`}>
+                {initials}
               </div>
               <span className="text-white text-sm font-medium">{company.name}</span>
             </div>
