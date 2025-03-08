@@ -18,7 +18,6 @@ export default function SignUp() {
   const [folders, setFolders] = useState([...defaultFolders]);
   const [folderName, setFolderName] = useState("");
   const [files, setFiles] = useState({});
-  const router = useRouter()
 
   // Handle text inputs
   const handleChange = (e) => {
@@ -45,7 +44,16 @@ export default function SignUp() {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setCookie("company", formData, 1);
+    setCookie("company", formData, 7);
+
+    const salesforceData = new FormData();
+    salesforceData.append("name", formData.name);
+    salesforceData.append("folder", "Salesforce");
+
+    await fetch("/api/upload", {
+      method: "POST",
+      body: salesforceData,
+    });
 
     for (const folder in files) {
       if (files[folder].length > 0) {
@@ -63,22 +71,18 @@ export default function SignUp() {
         if (!response.ok) {
           alert(`Error uploading files in ${folder}: ${result.error}`);
         }
-        router.push('/chat')
       }
     }
-
     alert("Files uploaded successfully!");
+    setTimeout(() => {
+      window.location.replace("/"); // Forces a full reload
+    }, 0);
   };
 
   // Move to next step
   const nextStep = (e) => {
     e.preventDefault();
-    if (
-      formData.name &&
-      formData.email &&
-      formData.location &&
-      formData.type
-    ) {
+    if (formData.name && formData.email && formData.location && formData.type) {
       setStep(2);
     } else {
       alert("Please fill out all required fields.");

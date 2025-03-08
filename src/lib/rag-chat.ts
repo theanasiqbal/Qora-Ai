@@ -11,36 +11,61 @@ export const ragChat = new RAGChat({
   promptFn: ({ question, context }: PromptParameters) => {
     // Trim question to limit input size if needed
     const trimmedQuestion = question.split(" ").slice(0, 50).join(" ");
-    
-    // Process context based on question relevance
+    const keyTerms = extractKeyTerms(trimmedQuestion);
+
+    // Prioritize lead-related documents
+    let leadsRelated = keyTerms.some((term) =>
+      [
+        "leads",
+        "customer",
+        "sales lead",
+        "CRM",
+        "contact",
+        "opportunity",
+      ].includes(term.toLowerCase())
+    );
+
     let processedContext = "";
-    
-    if (typeof context === "string" && context.length > 0) {
+
+    if (leadsRelated) {
+      // Prioritize the CSV context for leads-related queries
+      processedContext = context
+        .split(/\n{2,}/)
+        .filter((para) => para.includes("leads") || para.includes("customer"))
+        .join("\n\n");
+
+      // If no leads-related content is found in context, return a fallback response
+      if (!processedContext) {
+        return `The provided documents do not contain sufficient data about leads or customers. Please upload a relevant file.`;
+      }
+    } else if (typeof context === "string" && context.length > 0) {
       // Extract key terms from the question for context processing
       const keyTerms = extractKeyTerms(trimmedQuestion);
-      
+
       // Split context into paragraphs for more granular processing
       const paragraphs = context.split(/\n{2,}/);
-      
+
       // Score paragraphs based on relevance to question
-      const scoredParagraphs = paragraphs.map(para => {
+      const scoredParagraphs = paragraphs.map((para) => {
         let score = 0;
-        keyTerms.forEach(term => {
+        keyTerms.forEach((term) => {
           // Count occurrences of key terms
-          const regex = new RegExp(term, 'gi');
+          const regex = new RegExp(term, "gi");
           const matches = (para.match(regex) || []).length;
           score += matches;
         });
         return { text: para, score };
       });
-      
+
       // Sort paragraphs by relevance score (highest first)
-      const sortedParagraphs = [...scoredParagraphs].sort((a, b) => b.score - a.score);
-      
+      const sortedParagraphs = [...scoredParagraphs].sort(
+        (a, b) => b.score - a.score
+      );
+
       // Combine the most relevant paragraphs into processed context
       // Include all paragraphs with non-zero scores first
-      const relevantParagraphs = sortedParagraphs.filter(p => p.score > 0);
-      
+      const relevantParagraphs = sortedParagraphs.filter((p) => p.score > 0);
+
       // If we don't have enough relevant paragraphs, include some from the original context
       // to maintain document flow and provide background information
       const MAX_PARAGRAPHS = 15;
@@ -48,33 +73,33 @@ export const ragChat = new RAGChat({
         // Add some original paragraphs while maintaining order
         const remainingCount = MAX_PARAGRAPHS - relevantParagraphs.length;
         const remainingParagraphs = paragraphs
-          .filter(para => !relevantParagraphs.some(p => p.text === para))
+          .filter((para) => !relevantParagraphs.some((p) => p.text === para))
           .slice(0, remainingCount);
-        
+
         // Combine relevant and remaining paragraphs, sort by original position
         const allSelectedParagraphs = [
-          ...relevantParagraphs.map(p => p.text),
-          ...remainingParagraphs
+          ...relevantParagraphs.map((p) => p.text),
+          ...remainingParagraphs,
         ];
-        
+
         // Sort to maintain document flow
         const reorderedParagraphs = allSelectedParagraphs.sort((a, b) => {
           return paragraphs.indexOf(a) - paragraphs.indexOf(b);
         });
-        
+
         processedContext = reorderedParagraphs.join("\n\n");
       } else {
         // We have enough relevant paragraphs
-        processedContext = relevantParagraphs.map(p => p.text).join("\n\n");
+        processedContext = relevantParagraphs.map((p) => p.text).join("\n\n");
       }
     }
-    
+
     // If we couldn't process context properly, use original context
     const finalContext = processedContext || context || "";
-    
+
     // Include context only if available
-    const contextSection = finalContext 
-      ? `Context from document:\n${finalContext}\n` 
+    const contextSection = finalContext
+      ? `Context from document:\n${finalContext}\n`
       : "No context provided from the selected document.\n";
 
     return `
@@ -106,13 +131,33 @@ export const ragChat = new RAGChat({
 function extractKeyTerms(question) {
   // Remove stop words and keep meaningful terms
   const stopWords = new Set([
-    "a", "an", "the", "in", "on", "at", "by", "for", "with", "about", 
-    "to", "and", "or", "but", "if", "how", "what", "when", "where", "who", "why"
+    "a",
+    "an",
+    "the",
+    "in",
+    "on",
+    "at",
+    "by",
+    "for",
+    "with",
+    "about",
+    "to",
+    "and",
+    "or",
+    "but",
+    "if",
+    "how",
+    "what",
+    "when",
+    "where",
+    "who",
+    "why",
   ]);
-  
+
   // Extract potential keywords
-  return question.toLowerCase()
-    .replace(/[^\w\s]/g, '')
+  return question
+    .toLowerCase()
+    .replace(/[^\w\s]/g, "")
     .split(/\s+/)
-    .filter(word => !stopWords.has(word) && word.length > 3);
+    .filter((word) => !stopWords.has(word) && word.length > 3);
 }

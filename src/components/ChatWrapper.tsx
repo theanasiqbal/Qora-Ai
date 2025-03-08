@@ -10,14 +10,19 @@ import {
   Facebook,
   FileUp,
   Mail,
+  Loader,
+  MessageCirclePlus,
+  Plus,
 } from "lucide-react";
 import Messages from "./Messages";
 import { ChatInput } from "./ChatInput";
-import { setCookie } from "@/lib/helpers";
+import { clearCookie, getCookie, setCookie } from "@/lib/helpers";
 import TiptapEditor from "./TipTapEditor";
 import exportContentAsPdf from "@/lib/generatePdf";
 import { FolderSkeleton } from "./Skeletons";
 import { motion, AnimatePresence } from "framer-motion";
+import { SalesforceSvg } from "@/lib/svgs";
+import { redis } from "@/lib/redis";
 
 export const ChatWrapper = ({
   sessionId,
@@ -46,12 +51,11 @@ export const ChatWrapper = ({
   const [openFolders, setOpenFolders] = useState<{ [key: string]: boolean }>(
     {}
   );
-  const [selectedFile, setSelectedFile] = useState<{
-    folder: string;
-    file: string;
-  } | null>(null);
+  const [selectedFolder, setSelectedFolder] = useState(null);
   const [isFormattingPanelOpen, setIsFormattingPanelOpen] = useState(false);
   const [formattedContent, setFormattedContent] = useState("");
+  const [isFetchingSalesforce, setIsFetchingSalesforce] = useState(false);
+  const [chatIds, setChatIds] = useState();
   const formRef = useRef<HTMLFormElement>(null);
   // Function to apply formatting
   // const applyFormatting = (tag: string) => {
@@ -74,7 +78,7 @@ export const ChatWrapper = ({
       const selectedItem = JSON.parse(
         decodeURIComponent(storedData.split("=")[1])
       );
-      setSelectedFile(selectedItem);
+      setSelectedFolder(selectedItem.folder);
       setOpenFolders((prev) => ({
         ...prev,
         [selectedItem.folder]: true, // Open the folder of the selected file
@@ -84,27 +88,99 @@ export const ChatWrapper = ({
 
   // Fetch folder & file data
   useEffect(() => {
+    fetchFolderData();
+  }, []);
+
+  useEffect(() => {
+    if (!isLoading) {
+      fetchChatIds();
+    }
+  }, [isLoading, folders]);
+
+  const fetchChatIds = async () => {
+    try {
+      const updatedChatIds = {};
+
+      await Promise.all(
+        folders.map(async (folder) => {
+          const res = await fetch("/api/chat-ids", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ folderName: folder.name }),
+          });
+          const data = await res.json();
+
+          if (data.success) {
+            updatedChatIds[folder.name] = data.parsedChats.map((chat) => ({
+              chatId: chat.chatId.trim(),
+              lastMessage: chat.lastMessage,
+            }));
+          } else {
+            updatedChatIds[folder.name] = [];
+          }
+        })
+      );
+
+      setChatIds(updatedChatIds);
+    } catch (error) {
+      console.error("Failed to fetch chat IDs:", error);
+    }
+  };
+
+  const fetchFolderData = () => {
     fetch("/api/upload")
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
-          setFolders(data.data);
+          // Sort folders to put Salesforce first
+          const sortedFolders = data.data.sort(
+            (a: { name: string }, b: { name: string }) => {
+              if (a.name.toLowerCase() === "salesforce") return -1;
+              if (b.name.toLowerCase() === "salesforce") return 1;
+              return a.name.localeCompare(b.name);
+            }
+          );
+          setFolders(sortedFolders);
         }
       })
       .catch((error) => console.error("Error fetching files:", error));
-  }, []);
-
-  // Toggle folder open/close
-  const toggleFolder = (folderName: string) => {
-    setOpenFolders((prev) => ({ ...prev, [folderName]: !prev[folderName] }));
   };
 
-  // Handle file click (store in localStorage)
-  const handleFileClick = (folderName: string, fileName: string) => {
-    const data = { folder: folderName, file: fileName };
-    setCookie("selectedItem", data, 1);
-    setSelectedFile(data);
-    window.location.reload();
+  const toggleFolder = async (folderName: string) => {
+    // Special handling for Salesforce folder
+    if (folderName.toLowerCase() === "salesforce") {
+      const isFolderOpen = openFolders[folderName];
+
+      // If we're opening the folder and it has no files, fetch Salesforce data
+      const salesforceFolder = folders.find(
+        (folder) => folder.name.toLowerCase() === "salesforce"
+      );
+
+      if (
+        !isFolderOpen &&
+        salesforceFolder &&
+        salesforceFolder.files.length === 0
+      ) {
+        try {
+          setIsFetchingSalesforce(true);
+          await fetchSalesforceData();
+          setIsFetchingSalesforce(false);
+        } catch (error) {
+          setIsFetchingSalesforce(false);
+          console.error("Error fetching Salesforce data:", error);
+        }
+      }
+    }
+    setOpenFolders((prev) => ({ ...prev, [folderName]: !prev[folderName] }));
+    // if (!openFolders[folderName]) {
+
+    // }
+  };
+
+  const handleFolderClick = (folderName: string) => {
+    const data = { folder: folderName };
+    setCookie("selectedItem", data, 7);
+    setSelectedFolder(data.folder);
   };
 
   const copyFormattedText = async () => {
@@ -140,11 +216,28 @@ export const ChatWrapper = ({
       setTimeout(() => {
         formRef.current?.requestSubmit();
       }, 0);
-  
+
       return updatedInput;
     });
   };
-  
+
+  const fetchSalesforceData = async () => {
+    try {
+      const response = await fetch("/api/salesforce/query", {
+        method: "POST",
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch Salesforce data");
+      }
+
+      alert("Salesforce data fetched and PDF created successfully!");
+    } catch (error) {
+      console.error("Error fetching Salesforce data:", error);
+      alert(error.message);
+    }
+  };
 
   return (
     <div className="relative bg-[#151221] flex divide-x divide-zinc-700 h-full">
@@ -184,37 +277,59 @@ export const ChatWrapper = ({
               {folders.map((folder) => (
                 <li key={folder.name} className="text-sm">
                   <div
-                    className="flex items-center cursor-pointer hover:bg-gray-700 p-2 rounded"
-                    onClick={() => toggleFolder(folder.name)}
+                    className={`flex items-center cursor-pointer ${selectedFolder === folder.name ? "bg-purple-600" : ""} hover:bg-gray-700 p-2 rounded`}
+                    onClick={() => {
+                      toggleFolder(folder.name);
+                      handleFolderClick(folder.name);
+                      chatIds[folder.name].length
+                        ? ""
+                        : (clearCookie("chatId"), window.location.reload());
+                    }}
                   >
                     {openFolders[folder.name] ? (
                       <ChevronDown size={16} />
                     ) : (
                       <ChevronRight size={16} />
                     )}
-                    <span className="ml-2">📂 {folder.name}</span>
+                    <span className="ml-2 flex items-center">
+                      {folder.name.toLowerCase() === "salesforce" ? (
+                        <SalesforceSvg />
+                      ) : (
+                        <span>📂</span>
+                      )}
+                      {folder.name}
+                      {folder.name.toLowerCase() === "salesforce" &&
+                        isFetchingSalesforce && (
+                          <Loader className="ml-2 h-4 w-4 animate-spin text-gray-400" />
+                        )}
+                    </span>
                   </div>
                   {openFolders[folder.name] && (
                     <ul className="ml-8 mt-1 space-y-1">
-                      {folder.files.map((file) => {
-                        const fileName = file.name.replace(/\.pdf$/, "");
-                        return (
-                          <li
-                            key={file.name}
-                            onClick={() =>
-                              handleFileClick(folder.name, file.name)
-                            }
-                            className={`text-xs hover:bg-gray-700 p-2 rounded cursor-pointer ${
-                              selectedFile?.folder === folder.name &&
-                              selectedFile?.file === file.name
-                                ? "bg-gray-600 text-white"
-                                : "text-gray-300"
-                            }`}
-                          >
-                            📄 {fileName}
-                          </li>
-                        );
-                      })}
+                      {chatIds &&
+                      chatIds[folder.name] &&
+                      chatIds[folder.name]?.length > 0
+                        ? chatIds[folder.name].map((chat) => (
+                            <li
+                              onClick={() => {
+                                setCookie("chatId", chat.chatId, 7);
+                                handleFolderClick(folder.name);
+                                window.location.reload();
+                              }}
+                              key={chat.chatId}
+                              className="text-sm hover:bg-gray-700 p-2 rounded cursor-pointer text-gray-300"
+                            >
+                              {chat?.lastMessage?.length > 15
+                                ? chat?.lastMessage
+                                    ?.substring(0, 15)
+                                    .replace(/\b\w/g, (c) => c.toUpperCase()) +
+                                  "..."
+                                : chat?.lastMessage.replace(/\b\w/g, (c) =>
+                                    c.toUpperCase()
+                                  )}
+                            </li>
+                          ))
+                        : null}
                     </ul>
                   )}
                 </li>
@@ -232,6 +347,18 @@ export const ChatWrapper = ({
       {/* Chat Section */}
       <div className="flex-1 flex flex-col items-center justify-between">
         <div className="flex-1 text-black bg-[#151221] justify-between flex flex-col lg:max-w-3xl xl:max-w-4xl max-h-full">
+          {messages.length ? (
+            <div
+              onClick={() => {
+                // handleFolderClick(folder.name);
+                clearCookie("chatId");
+                window.location.reload();
+              }}
+              className="text-xs bg-purple-600 flex items-center justify-center w-16 hover:bg-purple-700 px-2 py-1.5 rounded cursor-pointer text-gray-300"
+            >
+              <Plus size={15} />
+            </div>
+          ) : null}
           <Messages
             messages={messages}
             isLoading={isLoading}
