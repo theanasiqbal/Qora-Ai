@@ -1,13 +1,11 @@
 import { PromptParameters, RAGChat, upstash } from "@upstash/rag-chat";
-import { redis } from "./redis";
 
-export const ragChat = new RAGChat({
+export const customerRagChat = new RAGChat({
   model: upstash("mistralai/Mistral-7B-Instruct-v0.2", {
     maxTokens: 512,
     temperature: 0.7,
     topP: 0.9,
   }),
-  redis: redis,
   promptFn: ({ question, context }: PromptParameters) => {
     // Trim question to limit input size if needed
     const trimmedQuestion = question.split(" ").slice(0, 50).join(" ");

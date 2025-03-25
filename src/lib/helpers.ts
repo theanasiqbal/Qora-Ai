@@ -1,3 +1,6 @@
+
+import { clerkClient } from "@clerk/clerk-sdk-node";
+
 // Function to manually set cookies
 export const setCookie = (name: string, value: any, days: number) => {
   const expires = new Date();
@@ -62,4 +65,11 @@ export const getInitials = (name: string) => {
     .join("")
     .toUpperCase();
 };
+
+
+export async function updateUserSubscription(userId: string, status: string) {
+  await clerkClient.users.updateUser(userId, {
+    publicMetadata: { subscriptionStatus: status },
+  });
+}
 

@@ -1,3 +1,4 @@
+"use client";
 import { useChat, type Message as TMessage } from "ai/react";
 import { Message } from "./Message";
 import { BarChart, Lightbulb, Mail, MessageSquare, Share2 } from "lucide-react";
@@ -9,8 +10,11 @@ type SetInput = ReturnType<typeof useChat>["setInput"];
 interface MessagesProps {
   messages: TMessage[];
   isLoading: boolean;
-  onShareClick: any;
-  handlePromptButton: any
+  onShareClick?: any;
+  handlePromptButton?: any;
+  onMailClick?: any;
+  salesMagnet?: boolean;
+  onChatBotShare?: any
 }
 // wrap inside React.Memo
 export const Messages = React.memo(
@@ -18,11 +22,12 @@ export const Messages = React.memo(
     messages,
     isLoading,
     onShareClick,
-    handlePromptButton
+    handlePromptButton,
+    onMailClick,
+    salesMagnet = false,
+    onChatBotShare
   }: MessagesProps) => {
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
-
-
 
     // Smooth scrolling function
     useEffect(() => {
@@ -35,14 +40,21 @@ export const Messages = React.memo(
     }, [messages, isLoading]); // Re-scroll when new messages or loader appears
 
     return (
-      <div className="flex flex-1 flex-col overflow-y-auto scroll-bar max-h-[calc(100vh-3.5rem-7rem)] px-4">
+      <div
+        className={`flex flex-1 flex-col overflow-y-auto scroll-bar ${
+          salesMagnet ? "h-[47vh]" : "max-h-[calc(100vh-3.5rem-7rem)]"
+        }  px-4`}
+      >
         {messages.length ? (
           messages.map((message, i) => (
             <Message
+            onChatBotShare={onChatBotShare}
+              salesMagnet={salesMagnet}
               key={i}
               content={message.content}
               isUserMessage={message.role === "user"}
               onShareClick={onShareClick}
+              onMailClick={onMailClick}
             />
           ))
         ) : (
@@ -52,55 +64,59 @@ export const Messages = React.memo(
               You&apos;re all set!
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-xl px-4">
-              <button
-                className="flex items-center gap-2 px-2 py-1.5 hover:bg-violet-800/20 text-violet-200 rounded-lg border border-violet-700/50 transition-colors text-sm text-left"
-                onClick={() => {
-                  handlePromptButton(
-                    "Write a persuasive cold email using Sales document."
-                  );
-                }}
-              >
-                <Mail size={30} className="mr-2 text-violet-400" />
-                <span>Write a persuasive cold email using Sales document.</span>
-              </button>
+            {!salesMagnet && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-xl px-4">
+                <button
+                  className="flex items-center gap-2 px-2 py-1.5 hover:bg-violet-800/20 text-violet-200 rounded-lg border border-violet-700/50 transition-colors text-sm text-left"
+                  onClick={() => {
+                    handlePromptButton(
+                      "Write a persuasive cold email using Sales document."
+                    );
+                  }}
+                >
+                  <Mail size={30} className="mr-2 text-violet-400" />
+                  <span>
+                    Write a persuasive cold email using Sales document.
+                  </span>
+                </button>
 
-              <button
-                className="flex items-center gap-2 px-2 py-1.5 hover:bg-violet-800/50 text-violet-200 rounded-lg border border-violet-700/50 transition-colors text-sm text-left"
-                onClick={() => {
-                  handlePromptButton(
-                    "Create an engaging social media post for our products."
-                  );
-                }}
-              >
-                <Share2 size={30} className="mr-2 text-violet-400" />
-                <span>
-                  Create an engaging social media post for our products.
-                </span>
-              </button>
+                <button
+                  className="flex items-center gap-2 px-2 py-1.5 hover:bg-violet-800/50 text-violet-200 rounded-lg border border-violet-700/50 transition-colors text-sm text-left"
+                  onClick={() => {
+                    handlePromptButton(
+                      "Create an engaging social media post for our products."
+                    );
+                  }}
+                >
+                  <Share2 size={30} className="mr-2 text-violet-400" />
+                  <span>
+                    Create an engaging social media post for our products.
+                  </span>
+                </button>
 
-              <button
-                className="flex items-center gap-2 px-2 py-1.5 hover:bg-violet-800/50 text-violet-200 rounded-lg border border-violet-700/50 transition-colors text-sm text-left"
-                onClick={() => {
-                  handlePromptButton(
-                    "Compare this product/service with competitors."
-                  );
-                }}
-              >
-                <BarChart size={30} className="mr-2 text-violet-400" />
-                <span>Compare this product/service with competitors.</span>
-              </button>
+                <button
+                  className="flex items-center gap-2 px-2 py-1.5 hover:bg-violet-800/50 text-violet-200 rounded-lg border border-violet-700/50 transition-colors text-sm text-left"
+                  onClick={() => {
+                    handlePromptButton(
+                      "Compare this product/service with competitors."
+                    );
+                  }}
+                >
+                  <BarChart size={30} className="mr-2 text-violet-400" />
+                  <span>Compare this product/service with competitors.</span>
+                </button>
 
-              <button
-                className="flex items-center gap-2 px-2 py-1.5 hover:bg-violet-800/50 text-violet-200 rounded-lg border border-violet-700/50 transition-colors text-sm text-left"
-                onClick={() => {
-                  handlePromptButton("Explain features of Karya.io.");
-                }}
-              >
-                <Lightbulb size={22} className="mr-2 text-violet-400" />
-                <span>Explain features of Karya.io.</span>
-              </button>
-            </div>
+                <button
+                  className="flex items-center gap-2 px-2 py-1.5 hover:bg-violet-800/50 text-violet-200 rounded-lg border border-violet-700/50 transition-colors text-sm text-left"
+                  onClick={() => {
+                    handlePromptButton("Explain features of Karya.io.");
+                  }}
+                >
+                  <Lightbulb size={22} className="mr-2 text-violet-400" />
+                  <span>Explain features of Karya.io.</span>
+                </button>
+              </div>
+            )}
 
             <p className="text-zinc-500 text-sm">
               Ask your first question to get started.
