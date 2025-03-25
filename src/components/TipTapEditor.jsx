@@ -41,20 +41,19 @@ const MenuButton = ({ onClick, isActive, children }) => (
   <button
     onClick={onClick}
     className={`p-2 rounded transition-colors ${
-      isActive 
-        ? "!bg-blue-500 text-white" 
+      isActive
+        ? "!bg-blue-500 text-white"
         : "text-gray-300 hover:!bg-gray-600 hover:text-white"
     }`}
     style={{
       backgroundColor: isActive ? "#3b82f6" : "transparent",
-      
     }}
   >
     {children}
   </button>
 );
 
-const TiptapEditor = ({ content, setContent }) => {
+const TiptapEditor = ({ content, setContent, editorOptions = {} }) => {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -100,6 +99,7 @@ const TiptapEditor = ({ content, setContent }) => {
     onUpdate: ({ editor }) => {
       setContent(editor.getHTML());
     },
+    ...editorOptions
   });
 
   if (!editor) {
@@ -142,7 +142,7 @@ const TiptapEditor = ({ content, setContent }) => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className="w-full max-w-4xl text-white mx-auto">
       {/* Menu Bar */}
       <BubbleMenu editor={editor} tippyOptions={{ duration: 100 }}>
         <div
@@ -266,7 +266,7 @@ const TiptapEditor = ({ content, setContent }) => {
           </div>
         </div>
       </BubbleMenu>
-      
+
       {/* Editor Content */}
       <div className="border border-t-0 rounded-b-lg">
         <EditorContent
@@ -275,6 +275,21 @@ const TiptapEditor = ({ content, setContent }) => {
         />
 
         <style jsx global>{`
+          .ProseMirror {
+            color: white !important;
+          }
+
+          .ProseMirror strong,
+          .ProseMirror b {
+            color: white !important;
+            font-weight: bold !important;
+          }
+
+          .ProseMirror:focus {
+            outline: none !important;
+          }
+
+          /* Custom Code Block Styles */
           .custom-code-block {
             background-color: black !important;
             color: white !important;
@@ -287,15 +302,11 @@ const TiptapEditor = ({ content, setContent }) => {
             color: white !important;
           }
 
-          .ProseMirror:focus {
-            outline: none !important;
-          }
-          
-          /* Add CSS to override any styles that might be preventing bg colors */
+          /* Ensure button overrides */
           button.!bg-blue-500 {
             background-color: #3b82f6 !important;
           }
-          
+
           button:hover.hover\:!bg-gray-600:hover {
             background-color: #4b5563 !important;
           }

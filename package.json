@@ -9,11 +9,15 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@clerk/backend": "^1.25.2",
+    "@clerk/clerk-sdk-node": "^4.13.23",
+    "@clerk/nextjs": "^6.12.4",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^6.4.3",
     "@mui/material": "^6.4.4",
     "@nextui-org/react": "^2.4.6",
+    "@prisma/client": "^6.4.1",
     "@tailwindcss/typography": "^0.5.16",
     "@tiptap/extension-bubble-menu": "^2.11.5",
     "@tiptap/extension-color": "^2.11.5",
@@ -65,6 +69,7 @@
     "eslint": "^8",
     "eslint-config-next": "14.2.5",
     "postcss": "^8",
+    "prisma": "^6.4.1",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }

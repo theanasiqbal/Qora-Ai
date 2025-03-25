@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
-import { redis } from "@/lib/redis"; 
+import { redis } from "@/lib/redis";
+import { auth } from "@clerk/nextjs/server";
+import clerkClient from "@clerk/clerk-sdk-node";
 
 export async function POST(req) {
   try {
+    const { userId } = await auth();
+
     const { folderName } = await req.json();
     if (!folderName) {
       return NextResponse.json(
@@ -12,7 +16,7 @@ export async function POST(req) {
     }
 
     // Fetch all chat records from Redis sorted set
-    const chatList = await redis.zrange(`${folderName}:chats`, 0, -1);
+    const chatList = await redis.zrange(`${userId} - ${folderName}:chats`, 0, -1);
 
     // Try parsing each record safely
     const parsedChats = chatList.map((chat) => {
@@ -22,7 +26,6 @@ export async function POST(req) {
         return chat; // If it's not JSON, return as is
       }
     });
-
 
     return NextResponse.json({ success: true, parsedChats });
   } catch (error) {

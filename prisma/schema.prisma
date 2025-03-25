@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String   @id @default(uuid()) // Unique user ID
+  userId            String   @unique // Clerk or authentication provider user ID
+  name              String
+  email             String   @unique
+  location          String?
+  type             String?
+  website          String?
+  sources          String[] @default([]) // Array of strings for sources
+  subscriptionStatus String  @default("trial") // Subscription status (e.g., "active", "trial", "expired")
+  createdAt        DateTime @default(now()) // Auto timestamp for creation
+  updatedAt        DateTime @updatedAt      // Auto timestamp for updates
+  bio              String?
+  description      String?
+  profileUrl       String?
+}
+
+model Feed {
+  id                String   @id @default(uuid()) 
+  userId            String
+  content           String
+  prompt            String?
+  createdAt         DateTime     @default(now())
+  published         Boolean      @default(false)  
+  publishedOn       DateTime?    
+  impressions       Int      @default(0)             
+}
+
+model Lead {
+  id               String   @id @default(uuid()) 
+  name             String
+  email            String
+  feedId           String
+  userId           String
+}
+

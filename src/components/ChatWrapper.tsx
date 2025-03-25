@@ -5,24 +5,15 @@ import {
   Menu,
   ChevronDown,
   ChevronRight,
-  Linkedin,
-  MessageCircle,
-  Facebook,
-  FileUp,
-  Mail,
   Loader,
-  MessageCirclePlus,
-  Plus,
 } from "lucide-react";
 import Messages from "./Messages";
 import { ChatInput } from "./ChatInput";
 import { clearCookie, getCookie, setCookie } from "@/lib/helpers";
-import TiptapEditor from "./TipTapEditor";
-import exportContentAsPdf from "@/lib/generatePdf";
 import { FolderSkeleton } from "./Skeletons";
-import { motion, AnimatePresence } from "framer-motion";
 import { SalesforceSvg } from "@/lib/svgs";
-import { redis } from "@/lib/redis";
+import { useUser } from "@clerk/nextjs";
+import FormattingPanel from "./FormattingPanel";
 
 export const ChatWrapper = ({
   sessionId,
@@ -53,14 +44,12 @@ export const ChatWrapper = ({
   );
   const [selectedFolder, setSelectedFolder] = useState(null);
   const [isFormattingPanelOpen, setIsFormattingPanelOpen] = useState(false);
+  const [isMailMode, setIsMailMode] = useState(false);
   const [formattedContent, setFormattedContent] = useState("");
-  const [isFetchingSalesforce, setIsFetchingSalesforce] = useState(false);
   const [chatIds, setChatIds] = useState();
+  const [isFetchingSalesforce, setIsFetchingSalesforce] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
-  // Function to apply formatting
-  // const applyFormatting = (tag: string) => {
-  //   setFormattedContent((prev) => prev + ` <${tag}></${tag}> `);
-  // };
+  const { user } = useUser();
 
   // Handle sharing - Open formatting panel, close sidebar
   const handleShareClick = (content: string) => {
@@ -69,6 +58,18 @@ export const ChatWrapper = ({
     setIsSidebarOpen(false); // Hide sidebar
   };
 
+  const handleMailClick = (content: string) => {
+    setFormattedContent(content);
+    setIsFormattingPanelOpen(true);
+    setIsMailMode(true);
+    setIsSidebarOpen(false); // Hide sidebar
+  };
+
+  const handleCloseFormattingPanel = () => {
+    setIsFormattingPanelOpen(false);
+    setIsMailMode(false);
+  };
+  
   useEffect(() => {
     const storedData = document.cookie
       .split("; ")
@@ -172,41 +173,12 @@ export const ChatWrapper = ({
       }
     }
     setOpenFolders((prev) => ({ ...prev, [folderName]: !prev[folderName] }));
-    // if (!openFolders[folderName]) {
-
-    // }
   };
 
   const handleFolderClick = (folderName: string) => {
     const data = { folder: folderName };
     setCookie("selectedItem", data, 7);
     setSelectedFolder(data.folder);
-  };
-
-  const copyFormattedText = async () => {
-    // Create a Blob with HTML content type
-    const htmlBlob = new Blob([formattedContent], { type: "text/html" });
-
-    // Create a ClipboardItem with the HTML blob
-    const clipboardItem = new ClipboardItem({
-      "text/html": htmlBlob,
-      "text/plain": new Blob([formattedContent], { type: "text/plain" }),
-    });
-
-    // Write to clipboard with format
-    await navigator.clipboard.write([clipboardItem]);
-  };
-
-  const copyPlainText = () => {
-    // Create a temporary DOM element
-    const tempElement = document.createElement("div");
-    tempElement.innerHTML = formattedContent; // Set the HTML content
-
-    // Extract plain text
-    const plainText = tempElement.textContent || tempElement.innerText;
-
-    // Copy to clipboard
-    navigator.clipboard.writeText(plainText);
   };
 
   const handlePromptButton = (promptText: string) => {
@@ -257,7 +229,7 @@ export const ChatWrapper = ({
       {/* Left Sidebar (Hidden when Formatting Panel is Open) */}
       {!isFormattingPanelOpen && (
         <div
-          className={`fixed inset-y-0 left-0 w-[250px] bg-[#1E1E2D] p-4 text-white transition-transform ${
+          className={`fixed inset-y-0 left-0 w-[250px] overflow-y-scroll scroll-bar bg-[#1E1E2D] p-4 text-white transition-transform ${
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
           } md:relative md:translate-x-0 md:block`}
         >
@@ -277,11 +249,13 @@ export const ChatWrapper = ({
               {folders.map((folder) => (
                 <li key={folder.name} className="text-sm">
                   <div
-                    className={`flex items-center cursor-pointer ${selectedFolder === folder.name ? "bg-purple-600" : ""} hover:bg-gray-700 p-2 rounded`}
+                    className={`flex items-center cursor-pointer ${
+                      selectedFolder === folder.name ? "bg-purple-600" : ""
+                    } hover:bg-gray-700 p-2 rounded`}
                     onClick={() => {
                       toggleFolder(folder.name);
                       handleFolderClick(folder.name);
-                      chatIds[folder.name].length
+                      chatIds[folder.name]?.length
                         ? ""
                         : (clearCookie("chatId"), window.location.reload());
                     }}
@@ -347,22 +321,11 @@ export const ChatWrapper = ({
       {/* Chat Section */}
       <div className="flex-1 flex flex-col items-center justify-between">
         <div className="flex-1 text-black bg-[#151221] justify-between flex flex-col lg:max-w-3xl xl:max-w-4xl max-h-full">
-          {messages.length ? (
-            <div
-              onClick={() => {
-                // handleFolderClick(folder.name);
-                clearCookie("chatId");
-                window.location.reload();
-              }}
-              className="text-xs bg-purple-600 flex items-center justify-center w-16 hover:bg-purple-700 px-2 py-1.5 rounded cursor-pointer text-gray-300"
-            >
-              <Plus size={15} />
-            </div>
-          ) : null}
           <Messages
             messages={messages}
             isLoading={isLoading}
             onShareClick={handleShareClick}
+            onMailClick={handleMailClick}
             handlePromptButton={handlePromptButton}
           />
         </div>
@@ -375,121 +338,13 @@ export const ChatWrapper = ({
         />
       </div>
 
-      {/* Right Formatting Panel (Visible when Share is clicked) */}
-
-      <AnimatePresence>
-        {isFormattingPanelOpen && (
-          <motion.div
-            initial={{ opacity: 0, x: 150 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 150 }}
-            transition={{
-              duration: 0.5,
-              ease: [0.25, 1, 0.5, 1], // Smooth cubic bezier easing
-            }}
-            className="lg:flex flex-col w-3/4  bg-[#1E1E2D] p-4 text-white border-l border-zinc-700"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <button
-                className="text-white"
-                onClick={() => setIsFormattingPanelOpen(false)}
-              >
-                ✕
-              </button>
-
-              <button
-                className="text-white bg-purple-600 flex items-center py-2 rounded-md relative group overflow-hidden"
-                onClick={() => exportContentAsPdf(formattedContent)}
-              >
-                {/* Always visible Icon */}
-                <motion.div
-                  initial={{ width: "40px" }}
-                  whileHover={{ width: "150px" }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
-                  className="flex items-center justify-start px-3"
-                >
-                  <FileUp
-                    size={18}
-                    className="shrink-0 transition-transform duration-300 group-hover:translate-x-1"
-                  />
-
-                  {/* Hidden text that appears on hover */}
-                  <motion.span
-                    initial={{ opacity: 0, x: -10 }}
-                    whileHover={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="opacity-0 group-hover:opacity-100 text-sm whitespace-nowrap ml-2"
-                  >
-                    Export as PDF
-                  </motion.span>
-                </motion.div>
-              </button>
-            </div>
-
-            {/* 🖋 Tiptap Editor - Ensure it has a fixed height */}
-            <div className="h-3/4 overflow-y-auto scroll-bar">
-              <TiptapEditor
-                content={formattedContent}
-                setContent={setFormattedContent}
-              />
-            </div>
-
-            {/* 📢 Share Buttons */}
-            <div className="flex space-x-2 mt-4 p-2 border-t border-gray-600">
-              <a
-                onClick={() => {
-                  copyFormattedText();
-                  window.open("https://www.linkedin.com/post/new", "_blank");
-                }}
-                target="_blank"
-                rel="noopener noreferrer"
-                className=" text-white bg-[#0077B5] hover:bg-[#3b5998]/90 focus:ring-4 focus:outline-none focus:ring-[#3b5998]/50 font-medium rounded-lg text-sm px-4 py-2 text-center inline-flex items-center dark:focus:ring-[#3b5998]/55  mb-2 cursor-pointer"
-                title="Share on LinkedIn + Ctrl V"
-              >
-                <Linkedin size={18} />
-              </a>
-
-              <a
-                onClick={() => {
-                  copyPlainText();
-                  window.open(
-                    "https://www.facebook.com/sharer/sharer.php",
-                    "_blank"
-                  );
-                }}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white bg-[#3b5998] hover:bg-[#3b5998]/90 focus:ring-4 focus:outline-none focus:ring-[#3b5998]/50 font-medium rounded-lg text-sm px-4 py-2 text-center inline-flex items-center dark:focus:ring-[#3b5998]/55  mb-2 cursor-pointer"
-                title="Share on Facebook + Ctrl V"
-              >
-                <Facebook size={18} />
-              </a>
-
-              <a
-                href={`https://discord.com/channels/@me`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white bg-[#7289DA] hover:bg-[#3b5998]/90 focus:ring-4 focus:outline-none focus:ring-[#3b5998]/50 font-medium rounded-lg text-sm px-4 py-2 text-center inline-flex items-center dark:focus:ring-[#3b5998]/55  mb-2 cursor-pointer"
-                title="Share on Discord + Ctrl V"
-                onClick={copyPlainText}
-              >
-                <MessageCircle size={18} />
-              </a>
-
-              <a
-                onClick={() => {
-                  copyPlainText();
-                  window.location.href = "mailto:?subject=Formatted Content";
-                }}
-                className="text-white bg-[#D44638] hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-500 font-medium rounded-lg text-sm px-4 py-2 text-center inline-flex items-center dark:focus:ring-red-700  mb-2 cursor-pointer"
-                title="Mail the formatted content"
-              >
-                <Mail size={18} />
-              </a>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Formatting Panel Component */}
+      <FormattingPanel 
+        isOpen={isFormattingPanelOpen}
+        onClose={handleCloseFormattingPanel}
+        initialContent={formattedContent}
+        isMailMode={isMailMode}
+      />
     </div>
   );
 };
