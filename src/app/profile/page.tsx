@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { setCookie, getCookie } from "@/lib/helpers";
 import { ProfilePreview } from "@/components/ProfilePreview";
 import { useUser } from "@clerk/nextjs";
+import toast from "react-hot-toast";
 
 export default function ProfilePage() {
   const [formData, setFormData] = useState({
@@ -13,7 +14,7 @@ export default function ProfilePage() {
     bio: "",
     description: ""
   });
-  
+
   const [profileImage, setProfileImage] = useState(null);
   const [profileImageURL, setProfileImageURL] = useState("/api/placeholder/150/150");
   const { isSignedIn, user } = useUser();
@@ -21,11 +22,11 @@ export default function ProfilePage() {
   useEffect(() => {
     const fetchUserData = async () => {
       if (!isSignedIn || !user?.id) return;
-  
+
       try {
         const res = await fetch(`/api/onboarding?userId=${user.id}`);
         if (!res.ok) throw new Error("Failed to fetch user data");
-  
+
         const userData = await res.json();
         if (userData) {
           setFormData(prevState => ({
@@ -37,16 +38,16 @@ export default function ProfilePage() {
             bio: userData.bio || prevState.bio,
             description: userData.description || prevState.description,
           }));
-  
+
           // ?if (userData.profileImageURL) {
-            setProfileImageURL(user.imageUrl);
+          setProfileImageURL(user.imageUrl);
           // 
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
     };
-  
+
     fetchUserData();
   }, [isSignedIn, user?.id]);
 
@@ -67,12 +68,12 @@ export default function ProfilePage() {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!user?.id) {
-      alert("User ID is missing.");
+      toast.error("User ID is missing.");
       return;
     }
-  
+
     try {
       // Prepare data for the PATCH request
       const updateData = {
@@ -80,7 +81,7 @@ export default function ProfilePage() {
         ...formData,
         profileUrl: profileImageURL, // Including profile image URL in case of an update
       };
-  
+
       // Send PATCH request to update user data
       const res = await fetch("/api/onboarding", {
         method: "PATCH",
@@ -89,40 +90,39 @@ export default function ProfilePage() {
         },
         body: JSON.stringify(updateData),
       });
-  
+
       const result = await res.json();
       if (!res.ok) {
         throw new Error(result.error || "Failed to update user data");
       }
-  
-      alert("Profile updated successfully!");
+
+      toast.success("Profile updated successfully!");
     } catch (error) {
-      console.error("Error updating profile:", error);
-      alert("Error updating profile. Please try again.");
+      toast.error("Error updating profile. Please try again.");
     }
-  
+
     // Handle profile image upload if needed
     if (profileImage) {
       const imageData = new FormData();
       imageData.append("name", formData.name);
       imageData.append("profileImage", profileImage);
-  
+
       try {
         const response = await fetch("/api/profile/upload", {
           method: "POST",
           body: imageData,
         });
-  
+
         if (!response.ok) {
           const result = await response.json();
-          alert(`Error uploading profile image: ${result.error}`);
+          toast.error(`Error uploading profile image: ${result.error}`);
         }
       } catch (error) {
-        alert(`Error uploading profile image: ${error.message}`);
+        toast.error(`Error uploading profile image: ${error.message}`);
       }
     }
   };
-  
+
 
   // Prepare profile data to pass to the component
   const previewData = {
@@ -137,7 +137,7 @@ export default function ProfilePage() {
 
       <div className="relative z-10 w-full max-w-6xl bg-[#1a1725] p-8 rounded-xl shadow-lg">
         <h2 className="text-white text-2xl font-bold mb-6">Profile</h2>
-        
+
         <div className="flex flex-col md:flex-row gap-8">
           {/* Left side - Form */}
           <div className="flex-1">
@@ -154,7 +154,7 @@ export default function ProfilePage() {
                   className="w-full bg-[#151221] file:bg-violet-600 file:rounded-lg file:border-none text-white p-3 rounded-lg"
                 />
               </div>
-              
+
               {/* Grid for basic info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Name */}
@@ -219,7 +219,7 @@ export default function ProfilePage() {
                   />
                 </div>
               </div>
-              
+
               {/* Bio */}
               <div>
                 <label className="block mb-2 text-gray-300 text-left text-sm font-semibold">
@@ -234,7 +234,7 @@ export default function ProfilePage() {
                   className="w-full bg-[#151221] text-white p-3 rounded-lg"
                 />
               </div>
-              
+
               {/* Description */}
               <div>
                 <label className="block mb-2 text-gray-300 text-left text-sm font-semibold">
@@ -249,7 +249,7 @@ export default function ProfilePage() {
                   className="w-full bg-[#151221] text-white p-3 scroll-bar rounded-lg resize-none"
                 />
               </div>
-              
+
               <button
                 type="submit"
                 className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-semibold"
@@ -258,7 +258,7 @@ export default function ProfilePage() {
               </button>
             </form>
           </div>
-          
+
           {/* Right side - Using the reusable ProfilePreview component */}
           <div className="flex-1">
             <ProfilePreview profileData={previewData} />

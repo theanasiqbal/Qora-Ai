@@ -14,6 +14,7 @@ import { FolderSkeleton } from "./Skeletons";
 import { SalesforceSvg } from "@/lib/svgs";
 import { useUser } from "@clerk/nextjs";
 import FormattingPanel from "./FormattingPanel";
+import toast from "react-hot-toast";
 
 export const ChatWrapper = ({
   sessionId,
@@ -69,7 +70,7 @@ export const ChatWrapper = ({
     setIsFormattingPanelOpen(false);
     setIsMailMode(false);
   };
-  
+
   useEffect(() => {
     const storedData = document.cookie
       .split("; ")
@@ -124,7 +125,7 @@ export const ChatWrapper = ({
 
       setChatIds(updatedChatIds);
     } catch (error) {
-      console.error("Failed to fetch chat IDs:", error);
+      toast.error("Failed to fetch chat IDs:", error);
     }
   };
 
@@ -204,10 +205,10 @@ export const ChatWrapper = ({
         throw new Error(data.message || "Failed to fetch Salesforce data");
       }
 
-      alert("Salesforce data fetched and PDF created successfully!");
+      toast.success("Salesforce data fetched and PDF created successfully!");
     } catch (error) {
       console.error("Error fetching Salesforce data:", error);
-      alert(error.message);
+      toast.error(error.message);
     }
   };
 
@@ -229,9 +230,8 @@ export const ChatWrapper = ({
       {/* Left Sidebar (Hidden when Formatting Panel is Open) */}
       {!isFormattingPanelOpen && (
         <div
-          className={`fixed inset-y-0 left-0 w-[250px] overflow-y-scroll scroll-bar bg-[#1E1E2D] p-4 text-white transition-transform ${
-            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } md:relative md:translate-x-0 md:block`}
+          className={`fixed inset-y-0 left-0 w-[250px] overflow-y-scroll scroll-bar bg-[#1E1E2D] p-4 text-white transition-transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+            } md:relative md:translate-x-0 md:block`}
         >
           {/* Close Button (Only on Mobile) */}
           <button
@@ -249,9 +249,8 @@ export const ChatWrapper = ({
               {folders.map((folder) => (
                 <li key={folder.name} className="text-sm">
                   <div
-                    className={`flex items-center cursor-pointer ${
-                      selectedFolder === folder.name ? "bg-purple-600" : ""
-                    } hover:bg-gray-700 p-2 rounded`}
+                    className={`flex items-center cursor-pointer ${selectedFolder === folder.name ? "bg-purple-600" : ""
+                      } hover:bg-gray-700 p-2 rounded`}
                     onClick={() => {
                       toggleFolder(folder.name);
                       handleFolderClick(folder.name);
@@ -281,28 +280,28 @@ export const ChatWrapper = ({
                   {openFolders[folder.name] && (
                     <ul className="ml-8 mt-1 space-y-1">
                       {chatIds &&
-                      chatIds[folder.name] &&
-                      chatIds[folder.name]?.length > 0
+                        chatIds[folder.name] &&
+                        chatIds[folder.name]?.length > 0
                         ? chatIds[folder.name].map((chat) => (
-                            <li
-                              onClick={() => {
-                                setCookie("chatId", chat.chatId, 7);
-                                handleFolderClick(folder.name);
-                                window.location.reload();
-                              }}
-                              key={chat.chatId}
-                              className="text-sm hover:bg-gray-700 p-2 rounded cursor-pointer text-gray-300"
-                            >
-                              {chat?.lastMessage?.length > 15
-                                ? chat?.lastMessage
-                                    ?.substring(0, 15)
-                                    .replace(/\b\w/g, (c) => c.toUpperCase()) +
-                                  "..."
-                                : chat?.lastMessage.replace(/\b\w/g, (c) =>
-                                    c.toUpperCase()
-                                  )}
-                            </li>
-                          ))
+                          <li
+                            onClick={() => {
+                              setCookie("chatId", chat.chatId, 7);
+                              handleFolderClick(folder.name);
+                              window.location.reload();
+                            }}
+                            key={chat.chatId}
+                            className="text-sm hover:bg-gray-700 p-2 rounded cursor-pointer text-gray-300"
+                          >
+                            {chat?.lastMessage?.length > 15
+                              ? chat?.lastMessage
+                                ?.substring(0, 15)
+                                .replace(/\b\w/g, (c) => c.toUpperCase()) +
+                              "..."
+                              : chat?.lastMessage.replace(/\b\w/g, (c) =>
+                                c.toUpperCase()
+                              )}
+                          </li>
+                        ))
                         : null}
                     </ul>
                   )}
@@ -339,7 +338,7 @@ export const ChatWrapper = ({
       </div>
 
       {/* Formatting Panel Component */}
-      <FormattingPanel 
+      <FormattingPanel
         isOpen={isFormattingPanelOpen}
         onClose={handleCloseFormattingPanel}
         initialContent={formattedContent}
