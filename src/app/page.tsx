@@ -9,6 +9,7 @@ import Hero from "@/components/Hero";
 import AssistantList from "@/components/AssistantList";
 import ToneList from "@/components/ToneList";
 import PricingPage from "@/components/PricingPage";
+import { AnimatedBeamDemo } from "@/components/AnimatedBeam";
 
 export default function Home() {
   return (
@@ -20,9 +21,12 @@ export default function Home() {
       {/* <ToneList /> */}
       <Userjourney />
       <Benefits />
+
       <PricingPage />
+      <AnimatedBeamDemo />
       <Faq />
       <Footer />
     </div>
+
   );
 }

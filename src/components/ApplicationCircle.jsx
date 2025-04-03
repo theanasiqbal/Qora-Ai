@@ -65,56 +65,57 @@ const Icon = styled(Box)({
   },
 });
 
-// Sample integration data
 const apps = [
   {
     id: 1,
-    name: "Figma",
-    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg",
-    description: "Design and prototyping tool",
+    name: "Salesforce",
+    icon: "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/salesforce.svg  ",
+    class: "salesforce-icon",
+    description: "CRM platform for sales and customer service",
   },
   {
     id: 2,
-    name: "GitHub",
-    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg",
-    description: "Code hosting and collaboration",
-    class: "w-8 h-8 bg-white p-2 rounded",
+    name: "HubSpot",
+    icon: "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/hubspot.svg",
+    class: "hubspot-icon",
+    description: "Marketing, sales, and service software",
   },
   {
     id: 3,
-    name: "Discord",
-    icon: "https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png",
-    description: "Communication platform",
-  },
-  {
-    id: 4,
     name: "Slack",
     icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/slack/slack-original.svg",
     description: "Team collaboration hub",
   },
   {
+    id: 4,
+    name: "LinkedIn",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg",
+    description: "Professional networking platform",
+  },
+  {
     id: 5,
-    name: "VS Code",
-    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg",
-    description: "Code editor",
+    name: "Facebook",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/facebook/facebook-original.svg",
+    description: "Social media platform",
   },
   {
     id: 6,
-    name: "Jira",
-    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jira/jira-original.svg",
-    description: "Project management tool",
+    name: "Instagram",
+    icon: "https://upload.wikimedia.org/wikipedia/commons/9/95/Instagram_logo_2022.svg",
+    description: "Photo and video sharing platform",
   },
+
   {
     id: 7,
-    name: "GitLab",
-    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/gitlab/gitlab-original.svg",
-    description: "DevOps platform",
-  },
-  {
-    id: 8,
     name: "Notion",
     icon: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png",
     description: "All-in-one workspace",
+  },
+  {
+    id: 8,
+    name: "Discord",
+    icon: "https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png",
+    description: "Communication platform",
   },
 ];
 
@@ -198,10 +199,10 @@ export default function RotatingIntegrations() {
               mb: 5,
             }}
           >
-            {process.env.NEXT_PUBLIC_NAME} works in harmony with your existing software to help you
-            achieve more without the hassle of switching platforms. Say goodbye
-            to disjointed processes and hello to a unified, streamlined
-            solution.
+            {process.env.NEXT_PUBLIC_NAME} works in harmony with your existing
+            software to help you achieve more without the hassle of switching
+            platforms. Say goodbye to disjointed processes and hello to a
+            unified, streamlined solution.
           </Typography>
         </Box>
       </Box>
@@ -252,6 +253,14 @@ export default function RotatingIntegrations() {
                   className={app.class || ""}
                   src={app.icon || "/placeholder.svg"}
                   alt={app.name}
+                  style={{
+                    filter:
+                      app.class === "salesforce-icon"
+                        ? "invert(40%) sepia(90%) saturate(1000%) hue-rotate(170deg) brightness(90%)" // Blue
+                        : app.class === "hubspot-icon"
+                        ? "invert(50%) sepia(90%) saturate(1000%) hue-rotate(330deg) brightness(100%)" // Orange
+                        : "none",
+                  }}
                 />
               </Icon>
             </Tooltip>
@@ -259,6 +268,5 @@ export default function RotatingIntegrations() {
         })}
       </Circle>
     </Container>
-
   );
 }

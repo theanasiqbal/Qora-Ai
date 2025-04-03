@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { X } from "lucide-react"
+import toast from "react-hot-toast"
 
 export default function LeadModal({
   setShowPopup,
@@ -41,7 +42,7 @@ export default function LeadModal({
       handleSubmit(e)
       setHasSubmittedPrompt(true)
     } catch (error) {
-      console.error("Error saving details:", error)
+      toast.error("Error saving details:", error)
       setError("Something went wrong. Please try again.")
     } finally {
       setIsSubmitting(false)

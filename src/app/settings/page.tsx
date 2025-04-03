@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Carousel from "@/components/Carousel";
 import { ArrowLeft } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function Settings() {
   const [formData, setFormData] = useState({
@@ -27,7 +28,7 @@ export default function Settings() {
       tone: "",
       language: "",
     })
-    alert("Agent settings saved successfully!");
+    toast.success("Agent settings saved successfully!");
   };
 
   return (
