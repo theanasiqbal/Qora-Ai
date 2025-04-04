@@ -39,6 +39,8 @@ model Feed {
   published         Boolean      @default(false)  
   publishedOn       DateTime?    
   impressions       Int      @default(0)             
+  leads             Int?
+  platform          String?
 }
 
 model Lead {

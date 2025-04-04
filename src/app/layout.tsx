@@ -4,9 +4,10 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Providers } from "@/components/Providers";
 import AppBar from "@/components/AppBar";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import Footer from "@/components/Footer";
-import { ClerkProvider } from '@clerk/nextjs'
-import { Toaster } from 'react-hot-toast';
+import { ClerkProvider } from "@clerk/nextjs";
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,8 +30,8 @@ export default function RootLayout({
             "h-screen flex flex-col antialiased dark text-foreground bg-background scroll-bar"
           )}
         >
+          <NuqsAdapter>
           <Providers>
-            <AppBar />
             <main className="flex-1  flex flex-col dark text-foreground bg-background h-[94vh]">
               {children}
             </main>
@@ -60,8 +61,10 @@ export default function RootLayout({
             />
 
 
+
             {/* <Footer /> */}
           </Providers>
+          </NuqsAdapter>
         </body>
       </html>
     </ClerkProvider>
