@@ -479,7 +479,8 @@ export default function OnBoarding() {
                     className={`p-2 rounded-lg cursor-pointer border-2 ${selectedAgents.includes(agent.id)
                       ? "border-purple-500 bg-purple-900 bg-opacity-30"
                       : "border-gray-700 hover:border-purple-400"
-                      }`}
+                      }
+                        ${selectedAgents.length === 0 || selectedAgents.includes(agent.id) ? "" : "blur-sm"}`}
                   >
                     <div className="w-full h-40 mx-auto mb-3 bg-[#151221] rounded-lg flex items-center justify-center">
                       {/* Replace with actual images */}
@@ -506,73 +507,90 @@ export default function OnBoarding() {
           )}
 
           {step === 2 && (
-            <form onSubmit={nextStep} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-4">
+              {agents.find(agent => agent.id === selectedAgents[0])?.name === "Oliver" ? (
+                <form onSubmit={nextStep} >
+                  <div className="grid grid-cols-2 gap-4">
 
-                {/* Location */}
-                <div>
-                  <label className="block mb-2 text-gray-300 text-left text-sm font-semibold">
-                    Location
-                  </label>
-                  <input
-                    type="text"
-                    name="location"
-                    placeholder="Enter your location"
-                    value={formData.location}
-                    onChange={handleChange}
-                    required
-                    className="w-full bg-[#151221] text-white p-3 rounded-lg"
-                  />
-                </div>
+                    {/* Location */}
+                    <div>
+                      <label className="block mb-2 text-gray-300 text-left text-sm font-semibold">
+                        Location
+                      </label>
+                      <input
+                        type="text"
+                        name="location"
+                        placeholder="Enter your location"
+                        value={formData.location}
+                        onChange={handleChange}
+                        required
+                        className="w-full bg-[#151221] text-white p-3 rounded-lg"
+                      />
+                    </div>
 
-                {/* Type */}
-                <div>
-                  <label className="block mb-2 text-gray-300 text-left text-sm font-semibold">
-                    Type
-                  </label>
-                  <input
-                    type="text"
-                    name="type"
-                    placeholder="Technology, Finance..."
-                    value={formData.type}
-                    onChange={handleChange}
-                    required
-                    className="w-full bg-[#151221] text-white p-3 rounded-lg"
-                  />
-                </div>
+                    {/* Type */}
+                    <div>
+                      <label className="block mb-2 text-gray-300 text-left text-sm font-semibold">
+                        Type
+                      </label>
+                      <input
+                        type="text"
+                        name="type"
+                        placeholder="Technology, Finance..."
+                        value={formData.type}
+                        onChange={handleChange}
+                        required
+                        className="w-full bg-[#151221] text-white p-3 rounded-lg"
+                      />
+                    </div>
 
-                {/* Website */}
-                <div>
-                  <label className="block mb-2 text-gray-300 text-left text-sm font-semibold">
-                    Website
-                  </label>
-                  <input
-                    type="text"
-                    name="website"
-                    placeholder="www.example.com"
-                    value={formData.website}
-                    onChange={handleChange}
-                    className="w-full bg-[#151221] text-white p-3 rounded-lg"
-                  />
+                    {/* Website */}
+                    <div>
+                      <label className="block mb-2 text-gray-300 text-left text-sm font-semibold">
+                        Website
+                      </label>
+                      <input
+                        type="text"
+                        name="website"
+                        placeholder="www.example.com"
+                        value={formData.website}
+                        onChange={handleChange}
+                        className="w-full bg-[#151221] text-white p-3 rounded-lg"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-4 pt-3">
+                    <button
+                      type="button"
+                      onClick={prevStep}
+                      className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold"
+                    >
+                      Back
+                    </button>
+                    <button
+                      type="button"
+                      onClick={nextStep}
+                      className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-semibold"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                // If the selected agent is not Oliver, show the "Development in Progress" message
+                <div className="text-center text-white">
+                  <h1 className="text-4xl font-bold">Development in Progress</h1>
+                  <p className="mt-4 text-lg">We are working on this feature for your selected agent. Stay tuned!</p>
+                  <button
+                    type="button"
+                    onClick={prevStep}
+                    className="w-40 bg-gray-600 mt-10  hover:bg-gray-700 text-white py-3 rounded-lg font-semibold"
+                  >
+                    Back
+                  </button>
                 </div>
-              </div>
-              <div className="flex gap-4">
-                <button
-                  type="button"
-                  onClick={prevStep}
-                  className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold"
-                >
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-semibold"
-                >
-                  Next
-                </button>
-              </div>
-            </form>
+              )}
+            </div>
           )}
 
           {step === 3 && (
@@ -785,7 +803,6 @@ export default function OnBoarding() {
           </div>
         </div>
       )}
-
     </div>
   );
 }
