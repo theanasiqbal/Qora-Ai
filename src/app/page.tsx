@@ -10,23 +10,25 @@ import AssistantList from "@/components/AssistantList";
 import ToneList from "@/components/ToneList";
 import PricingPage from "@/components/PricingPage";
 import { AnimatedBeamDemo } from "@/components/Brain";
+import AppBar from "@/components/AppBar";
 
 export default function Home() {
   return (
-    <div className="relative flex flex-col bg-[#151221] ">
-      <Hero />
-      <AssistantList />
-      <RotatingIntegrations />
-      <SocialMedia />
-      {/* <ToneList /> */}
-      <Userjourney />
-      <Benefits />
-
-      <PricingPage />
-      <AnimatedBeamDemo />
-      <Faq />
-      <Footer />
-    </div>
-
+    <>
+      <AppBar />
+      <div className="relative flex flex-col bg-[#151221] ">
+        <Hero />
+        <AssistantList />
+        <RotatingIntegrations />
+        <SocialMedia />
+        {/* <ToneList /> */}
+        <Userjourney />
+        <Benefits />
+        <PricingPage />
+        <AnimatedBeamDemo />
+        <Faq />
+        <Footer />
+      </div>
+    </>
   );
 }
