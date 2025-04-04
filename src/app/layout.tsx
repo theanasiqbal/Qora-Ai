@@ -35,8 +35,28 @@ export default function RootLayout({
               {children}
             </main>
             <Toaster
-              position="bottom-left"
+              position="top-center"
               reverseOrder={false}
+              toastOptions={{
+                success: {
+                  style: {
+                    background: "#6b21a8", // Purple background for success
+                    color: "#fff",
+                    fontWeight: "bold",
+                    borderRadius: "8px",
+                    padding: "20px",
+                  },
+                },
+                error: {
+                  style: {
+                    background: "#E91E63", // Red background for errors
+                    color: "#fff",
+                    fontWeight: "bold",
+                    borderRadius: "8px",
+                    padding: "20px",
+                  },
+                },
+              }}
             />
 
 
