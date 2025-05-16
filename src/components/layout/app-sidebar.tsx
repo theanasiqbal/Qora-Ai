@@ -1,10 +1,10 @@
-'use client';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+"use client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Collapsible,
   CollapsibleContent,
-  CollapsibleTrigger
-} from '@/components/ui/collapsible';
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,8 +12,8 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Sidebar,
   SidebarContent,
@@ -28,28 +28,29 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   SidebarRail,
-  useSidebar
-} from '@/components/ui/sidebar';
-import { navItems } from '@/constants/data';
+  useSidebar,
+} from "@/components/ui/sidebar";
+import { navItems } from "@/constants/data";
 import {
   BadgeCheck,
   Bell,
+  Bot,
   ChevronRight,
   ChevronsUpDown,
   CreditCard,
   GalleryVerticalEnd,
-  LogOut
-} from 'lucide-react';
-import { signOut, useSession } from 'next-auth/react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import * as React from 'react';
-import { Icons } from '../icons';
+  LogOut,
+} from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import * as React from "react";
+import { Icons } from "../icons";
 
 export const company = {
-  name: 'Acme Inc',
+  name: "Acme Inc",
   logo: GalleryVerticalEnd,
-  plan: 'Enterprise'
+  plan: "Enterprise",
 };
 
 export default function AppSidebar() {
@@ -58,19 +59,16 @@ export default function AppSidebar() {
   // const { state, isMobile } = useSidebar();
 
   return (
-    <Sidebar className='w-[15vw]' collapsible='icon'>
+    <Sidebar className="w-[15vw] bg-[#1E1E2D]" collapsible="icon">
       <SidebarHeader>
-        <div className='text-sidebar-accent-foreground flex gap-2 py-2'>
-          <div className='bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg'>
-            <company.logo className='size-4' />
+        <div className="text-sidebar-accent-foreground flex gap-2 py-2">
+          <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+            <Bot className="size-4" />
           </div>
-          <div className='grid flex-1 text-left text-sm leading-tight'>
-            <span className='truncate font-semibold'>{company.name}</span>
-            <span className='truncate text-xs'>{company.plan}</span>
-          </div>
+          <span className="truncate font-semibold pt-1">Qora.ai</span>
         </div>
       </SidebarHeader>
-      <SidebarContent className='overflow-x-hidden'>
+      <SidebarContent className="overflow-x-hidden">
         <SidebarGroup>
           <SidebarGroupLabel>Overview</SidebarGroupLabel>
           <SidebarMenu>
@@ -81,7 +79,7 @@ export default function AppSidebar() {
                   key={item.title}
                   asChild
                   defaultOpen={item.isActive}
-                  className='group/collapsible'
+                  className="group/collapsible"
                 >
                   <SidebarMenuItem>
                     <CollapsibleTrigger asChild>
@@ -91,7 +89,7 @@ export default function AppSidebar() {
                       >
                         {item.icon && <Icon />}
                         <span>{item.title}</span>
-                        <ChevronRight className='ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90' />
+                        <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                       </SidebarMenuButton>
                     </CollapsibleTrigger>
                     <CollapsibleContent>

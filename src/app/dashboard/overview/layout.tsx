@@ -2,7 +2,7 @@ import PageContainer from '@/components/layout/page-container';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import React from 'react';
 
-export default function OverViewLayout({
+export default async function OverViewLayout({
   sales,
   pie_stats,
   bar_stats,
@@ -13,6 +13,31 @@ export default function OverViewLayout({
   bar_stats: React.ReactNode;
   area_stats: React.ReactNode;
 }) {
+ // Fetch total leads
+ const leadResponse = await fetch("http://localhost:3001/api/lead", {
+  cache: "no-store"
+});
+ if (!leadResponse.ok) {
+   console.error('Error fetching leads:', leadResponse.statusText);
+   return;
+ }
+ const leadData = await leadResponse.json();
+ const totalLeads = leadData.total_feeds;
+
+ // Fetch feeds and calculate total impressions
+ const feedResponse = await fetch("http://localhost:3001/api/feed", {
+  cache: "no-store"
+});
+ if (!feedResponse.ok) {
+   console.error('Error fetching feeds:', feedResponse.statusText);
+   return;
+ }
+ const data = await feedResponse.json();
+ const totalFeeds = data.total_feeds;
+
+ const totalImpressions = data.feeds.reduce((sum: number, feed: any) => {
+   return sum + (feed.impression || 0);
+ }, 0);
   return (
     <PageContainer>
       <div className='flex flex-1 flex-col space-y-2'>
@@ -25,7 +50,7 @@ export default function OverViewLayout({
           <Card>
             <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
               <CardTitle className='text-sm font-medium'>
-                Total Revenue
+                Total Feeds
               </CardTitle>
               <svg
                 xmlns='http://www.w3.org/2000/svg'
@@ -41,7 +66,7 @@ export default function OverViewLayout({
               </svg>
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>$45,231.89</div>
+              <div className='text-2xl font-bold'>{totalFeeds}</div>
               <p className='text-xs text-muted-foreground'>
                 +20.1% from last month
               </p>
@@ -50,7 +75,7 @@ export default function OverViewLayout({
           <Card>
             <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
               <CardTitle className='text-sm font-medium'>
-                Subscriptions
+                Total Leads
               </CardTitle>
               <svg
                 xmlns='http://www.w3.org/2000/svg'
@@ -68,7 +93,7 @@ export default function OverViewLayout({
               </svg>
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>+2350</div>
+              <div className='text-2xl font-bold'>{totalLeads}</div>
               <p className='text-xs text-muted-foreground'>
                 +180.1% from last month
               </p>
@@ -76,7 +101,7 @@ export default function OverViewLayout({
           </Card>
           <Card>
             <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium'>Sales</CardTitle>
+              <CardTitle className='text-sm font-medium'>Impressions</CardTitle>
               <svg
                 xmlns='http://www.w3.org/2000/svg'
                 viewBox='0 0 24 24'
@@ -92,7 +117,7 @@ export default function OverViewLayout({
               </svg>
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>+12,234</div>
+              <div className='text-2xl font-bold'>{totalImpressions}</div>
               <p className='text-xs text-muted-foreground'>
                 +19% from last month
               </p>

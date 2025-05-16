@@ -13,7 +13,7 @@ const ChatBot = ({
   userId,
 }: {
   sessionId: string;
-  initialMessages: Message[];
+  initialMessages?: Message[];
   feedId?: string | null;
   userId?: string;
 }) => {
@@ -39,9 +39,8 @@ const ChatBot = ({
 
   const fetchFeed = async () => {
     try {
-      const res = await fetch(`/api/feed?feedId=${feedId}`);
+      const res = await fetch(`/api/feed/${feedId}`);
       if (!res.ok) throw new Error("Failed to fetch feed data");
-
       const feedData = await res.json();
       setFeed(feedData);
     } catch (error) {

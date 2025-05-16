@@ -53,7 +53,7 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
       {/* Profile Image */}
       <div className="w-36 h-36 rounded-full mb-6 bg-[#1a1725] flex items-center justify-center border-2 border-purple-600">
         {profile.profileUrl ? (
-          <Image
+          <img
             src={profile.profileUrl}
             alt="Profile"
             width={137}

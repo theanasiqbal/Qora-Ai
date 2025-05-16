@@ -7,6 +7,8 @@ import {
   STATUS_OPTIONS,
   useLeadTableFilters,
 } from './use-lead-table-filters';
+import { UserRoundPlus } from 'lucide-react';
+import AddUserModal from '@/components/modals/AddUserModal';
 
 export default function LeadTableAction() {
   const {
@@ -38,6 +40,8 @@ export default function LeadTableAction() {
         isFilterActive={isAnyFilterActive}
         onReset={resetFilters}
       />
+         <AddUserModal />
+         
     </div>
   );
 }

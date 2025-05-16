@@ -5,7 +5,6 @@ import { clerkClient } from "@clerk/clerk-sdk-node";
 export const setCookie = (name: string, value: any, days: number) => {
   const expires = new Date();
   expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-  
   // Store raw value if it's a string or number
   const formattedValue =
     typeof value === "string" || typeof value === "number" ? value : JSON.stringify(value);
@@ -72,4 +71,23 @@ export async function updateUserSubscription(userId: string, status: string) {
     publicMetadata: { subscriptionStatus: status },
   });
 }
+
+
+export async function createUser(email: string, role: string) {
+  const user = await clerkClient.users.createUser({
+    emailAddress: [email],
+    publicMetadata: {
+      role: role, // "agent" or "admin"
+    },
+    skipPasswordRequirement: true, // Important: no password needed!
+  });
+
+  // Optionally send email invite manually
+  await clerkClient.invitations.createInvitation({
+    emailAddress: email,
+  });
+
+  return user;
+}
+
 

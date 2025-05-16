@@ -1,14 +1,22 @@
-import { Suspense } from 'react';
-import dynamic from 'next/dynamic';
+import { Suspense } from "react";
+import dynamic from "next/dynamic";
 
-const SalesMagnetComponent = dynamic(() => import('@/components/sales-magnet'), {
-  suspense: true,
-});
+const SalesMagnetComponent = dynamic(
+  () => import("@/components/sales-magnet"),
+  {
+    suspense: true,
+  }
+);
 
-const SalesMagnetPage = () => {
+const SalesMagnetPage = ({
+  params,
+}: {
+  params: { userId?: string; draftId?: string };
+}) => {
+  const { userId, draftId } = params;
   return (
     <Suspense fallback={<div>Loading Sales Magnet...</div>}>
-      <SalesMagnetComponent />
+      <SalesMagnetComponent userId={userId} feedId={draftId} />
     </Suspense>
   );
 };

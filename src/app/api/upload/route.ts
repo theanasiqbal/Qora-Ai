@@ -1,63 +1,127 @@
-import { writeFile, mkdir } from "fs/promises";
+import { writeFile, mkdir, readFile } from "fs/promises";
 import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs";
 import { cookies } from "next/headers";
+import { currentUser } from "@clerk/nextjs/server";
 
 export async function POST(req) {
-  try {
-    const data = await req.formData();
-    const name = data.get("name"); // Get user name
-    const folder = data.get("folder"); // Get folder name (e.g., "Legal Documents")
-    const files = data.getAll("files"); // Get multiple files
+  const { searchParams } = new URL(req.url);
+  const documents = searchParams.get("documents");
+  const user = await currentUser();
+  if (documents) {
+    try {
+      const data = await req.formData();
+      const files = data.getAll("files");
+      const uploadDir = path.join(
+        process.cwd(),
+        "public",
+        "data",
+        user?.fullName,
+        "documents"
+      );
 
-    if (!name || !folder ) {
+      await mkdir(uploadDir, { recursive: true });
+
+      // Save each file into the correct folder
+      await Promise.all(
+        files.map(async (file) => {
+          const bytes = await file.arrayBuffer();
+          const buffer = Buffer.from(bytes);
+          const filePath = path.join(uploadDir, file.name);
+          await writeFile(filePath, buffer);
+        })
+      );
+
       return NextResponse.json(
-        { error: "Name, folder, and files are required!" },
-        { status: 400 }
+        { message: `Files uploaded successfully!` },
+        { status: 200 }
+      );
+    } catch (error) {
+      return NextResponse.json(
+        { error: "File upload failed!" },
+        { status: 500 }
       );
     }
+  } else {
+    try {
+      const data = await req.formData();
+      const newWebsitesString = data.get("websites") as string;
 
-    const uploadDir = path.join(process.cwd(), "public", "data", name, folder);
+      const uploadDir = path.join(
+        process.cwd(),
+        "public",
+        "data",
+        user?.fullName,
+        "websites"
+      );
 
-    // Create the directory if it doesn't exist
-    await mkdir(uploadDir, { recursive: true });
+      await mkdir(uploadDir, { recursive: true });
 
-    // Save each file into the correct folder
-    await Promise.all(
-      files.map(async (file) => {
-        const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-        const filePath = path.join(uploadDir, file.name);
-        await writeFile(filePath, buffer);
-      })
-    );
+      const websitesFilePath = path.join(uploadDir, "websites.txt");
 
-    return NextResponse.json(
-      { message: `Files uploaded to ${folder} successfully!` },
-      { status: 200 }
-    );
-  } catch (error) {
-    return NextResponse.json({ error: "File upload failed!" }, { status: 500 });
+      // Initialize a set to hold existing websites.
+      let websitesSet = new Set<string>();
+      let existingWebsites = "";
+
+      try {
+        existingWebsites = await readFile(websitesFilePath, "utf-8");
+        // Create a set of websites by splitting on commas and trimming extra whitespace.
+        websitesSet = new Set(
+          existingWebsites
+            .split(",")
+            .map((site) => site.trim())
+            .filter(Boolean)
+        );
+      } catch (err) {
+        // If the file doesn't exist, we'll simply proceed.
+        console.log(err?.message)
+      }
+
+      const newWebsites = newWebsitesString
+        .split(",")
+        .map((site) => site.trim())
+        .filter(Boolean);
+
+      // Determine which websites are not already present.
+      const websitesToAdd = newWebsites.filter(
+        (site) => !websitesSet.has(site)
+      );
+
+      // If there are any new websites, update the file.
+      if (websitesToAdd.length > 0) {
+        let updatedWebsites = "";
+        if (existingWebsites.trim() === "") {
+          // No websites exist yet.
+          updatedWebsites = websitesToAdd.join(", ");
+        } else {
+          // Append the new websites to the existing list.
+          updatedWebsites =
+            existingWebsites.trim() + ", " + websitesToAdd.join(", ");
+        }
+
+        await writeFile(websitesFilePath, updatedWebsites);
+      }
+
+      return NextResponse.json(
+        { message: "Websites saved successfully!" },
+        { status: 200 }
+      );
+    } catch (error) {
+      return NextResponse.json(
+        { error: "Website saving failed!" },
+        { status: 500 }
+      );
+    }
   }
 }
 
 export async function GET() {
   // Get cookies using next/headers
   const cookieStore = cookies();
-  const company = cookieStore.get("company")?.value;
+  const user = await currentUser();
 
-  let companyName = "Unknown";
-  try {
-    if (company) {
-      const companyData = JSON.parse(company);
-      companyName = companyData.name || "Unknown";
-    }
-  } catch (error) {
-    console.error("Error parsing cookies:", error);
-  }
-
-  const basePath = path.join(process.cwd(), "public", "data", companyName);
+  const basePath = path.join(process.cwd(), "public", "data", user?.fullName);
 
   try {
     const items = fs.readdirSync(basePath, { withFileTypes: true });

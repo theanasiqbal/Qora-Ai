@@ -2,7 +2,7 @@
 
 import { searchParams } from '@/lib/searchparams';
 import { useQueryState } from 'nuqs';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 export const CATEGORY_OPTIONS = [
   { value: 'Electronics', label: 'Electronics' },
@@ -15,6 +15,9 @@ export const CATEGORY_OPTIONS = [
   { value: 'Beauty Products', label: 'Beauty Products' }
 ];
 export function useProductTableFilters() {
+
+    const [scheduledFilter, setScheduledFilter] = useState<boolean | null>(null);
+
   const [searchQuery, setSearchQuery] = useQueryState(
     'q',
     searchParams.q
@@ -46,6 +49,8 @@ export function useProductTableFilters() {
   return {
     searchQuery,
     setSearchQuery,
+    scheduledFilter,
+    setScheduledFilter,
     page,
     setPage,
     resetFilters,

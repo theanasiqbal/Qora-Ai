@@ -1,45 +1,44 @@
-'use client';
-import { Product } from '@/constants/data';
-import { ColumnDef } from '@tanstack/react-table';
-import Image from 'next/image';
-import { CellAction } from './cell-action';
+"use client";
+import { Product } from "@/constants/data";
+import { ColumnDef } from "@tanstack/react-table";
+import Image from "next/image";
+import { CellAction } from "./cell-action";
 
 export const columns: ColumnDef<Product>[] = [
   {
-    accessorKey: 'photo_url',
-    header: 'IMAGE',
-    cell: ({ row }) => {
-      return (
-        <div className='relative aspect-square'>
-          <Image
-            src={row.getValue('photo_url')}
-            alt={row.getValue('name')}
-            fill
-            className='rounded-lg'
-          />
+    accessorKey: "content",
+    header: "CONTENT",
+    cell: ({ row }) => (
+      <div className="group relative max-w-[300px]">
+        <div className="max-h-[3.0em] overflow-hidden text-ellipsis whitespace-nowrap transition-all duration-300 ease-in-out group-hover:max-h-[1000px] group-hover:whitespace-normal group-hover:break-words">
+          {row.original.content}
         </div>
-      );
-    }
+      </div>
+    ),
   },
   {
-    accessorKey: 'name',
-    header: 'NAME'
+    accessorKey: "prompt",
+    header: "PROMPT",
   },
   {
-    accessorKey: 'category',
-    header: 'CATEGORY'
+    accessorKey: "published",
+    header: "PUBLISHED",
   },
   {
-    accessorKey: 'price',
-    header: 'PRICE'
+    accessorKey: "impressions",
+    header: "IMPRESSIONS",
   },
   {
-    accessorKey: 'description',
-    header: 'DESCRIPTION'
+    accessorKey: "platform",
+    header: "PLATFORM",
+  },
+  {
+    accessorKey: "leads",
+    header: "LEADS",
   },
 
   {
-    id: 'actions',
-    cell: ({ row }) => <CellAction data={row.original} />
-  }
+    id: "actions",
+    cell: ({ row }) => <CellAction data={row.original} />,
+  },
 ];

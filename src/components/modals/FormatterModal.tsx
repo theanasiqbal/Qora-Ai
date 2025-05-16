@@ -1,8 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FileUp, Linkedin, Facebook, MessageCircle, X } from "lucide-react";
-import exportContentAsPdf from "@/lib/generatePdf";
+import { Linkedin, Facebook, MessageCircle, X } from "lucide-react";
 import TiptapEditor from "../TipTapEditor";
 
 const FormatterModal = ({
@@ -16,7 +15,7 @@ const FormatterModal = ({
 
   // Update formattedContent whenever initialContent changes
   useEffect(() => {
-    if (initialContent) {
+    if (initialContent.length) {
       setFormattedContent(initialContent);
     }
   }, [initialContent]);
