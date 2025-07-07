@@ -27,21 +27,16 @@ export async function GET(req: Request) {
     }
 
     // Fetch paginated & filtered feeds
-    const [totalLeads, leads] = await Promise.all([
-      prisma.lead.count({ where }),
-      prisma.lead.findMany({
-        where,
-        skip: (page - 1) * limit,
-        take: limit,
-      }),
-    ]);
+    const leads = await prisma.lead.findMany({
+      where,
+    });
 
     // Ensure consistent response with 'total_leads' and 'leads'
     return NextResponse.json({
       success: true,
       time: new Date().toISOString(),
       message: "Fetched leads successfully",
-      total_feeds: totalLeads, // Using 'total_leads' key
+      total_feeds: leads.length, // Using 'total_leads' key
       feeds: leads, // Using 'leads' key
       page,
       limit,
@@ -77,6 +72,15 @@ export async function POST(req) {
         status: "Pending",
       },
     });
+
+    await prisma.feed.update({
+          where: { id: feedId },
+          data: {
+            leads: {
+              increment: 1,
+            },
+          },
+        });
 
     return NextResponse.json(
       { message: "Lead created successfully", lead },

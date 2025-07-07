@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@azure/storage-blob": "^12.27.0",
     "@clerk/backend": "^1.25.2",
     "@clerk/clerk-sdk-node": "^4.13.23",
     "@clerk/nextjs": "^6.12.4",
@@ -75,6 +76,7 @@
     "@upstash/vector": "^1.1.7",
     "ai": "^3.3.0",
     "canvas-confetti": "^1.9.3",
+    "cheerio": "^1.0.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.4",
@@ -84,6 +86,7 @@
     "framer-motion": "^12.6.0",
     "gsap": "^3.12.7",
     "ioredis": "^5.5.0",
+    "jsdom": "^26.1.0",
     "jsforce": "^3.6.6",
     "kbar": "^0.1.0-beta.45",
     "lucide-react": "^0.424.0",
@@ -96,6 +99,7 @@
     "next-themes": "^0.4.4",
     "nextjs-toploader": "^3.7.15",
     "nuqs": "^2.2.3",
+    "pdf-lib": "^1.17.1",
     "postcss": "8.4.49",
     "puppeteer": "^24.3.0",
     "react": "^18",

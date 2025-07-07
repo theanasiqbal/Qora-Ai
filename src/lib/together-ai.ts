@@ -3,7 +3,6 @@ import Together from "together-ai";
 const together = new Together();
 
 export async function generateResponse(query: string, context: any) {
-
   const contextText = context
     .map((chunk, i) => {
       const { data, metadata } = chunk;
@@ -33,10 +32,10 @@ Context: ${contextText}
     if (choice) {
       return choice.content;
     } else {
-      return "No message in the response choice."; 
+      return "No message in the response choice.";
     }
   } catch (error) {
     console.error("Error generating response:", error);
-    return "An error occurred while generating the response."; 
+    return "An error occurred while generating the response.";
   }
 }

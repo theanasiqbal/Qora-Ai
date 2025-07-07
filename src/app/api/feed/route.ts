@@ -4,8 +4,6 @@ import { prisma } from "@/lib/prisma";
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
     const status = searchParams.get("status") || "";
     const search = searchParams.get("search") || "";
 
@@ -28,11 +26,9 @@ export async function GET(req: Request) {
     // Fetch paginated & filtered feeds
     const [totalFeeds, feeds] = await Promise.all([
       prisma.feed.count({ where }),
-      prisma.feed.findMany({
+       prisma.feed.findMany({
         where,
         orderBy: { createdAt: "desc" },
-        skip: (page - 1) * limit,
-        take: limit,
       }),
     ]);
 
@@ -41,8 +37,6 @@ export async function GET(req: Request) {
       time: new Date().toISOString(),
       message: "Fetched feeds successfully",
       total_feeds: totalFeeds,
-      page,
-      limit,
       feeds,
     });
   } catch (error) {
@@ -55,8 +49,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { userId, content, prompt, scheduledOn } = body;
-
+    const { userId, content, prompt, scheduledOn, campaign } = body;
     if (!userId || !content || !prompt) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
@@ -74,6 +67,7 @@ export async function POST(req: Request) {
       userId,
       content,
       prompt,
+      campaign,
     };
 
     if (parsedDate) {

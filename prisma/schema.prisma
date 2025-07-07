@@ -42,6 +42,7 @@ model Feed {
   impressions Int       @default(0)
   leads       Int?
   platform    String?
+  campaign    String?
   leadsList   Lead[]    
 }
 
@@ -49,11 +50,35 @@ model Lead {
   id              String   @id @default(uuid())
   name            String
   email           String
-  feedId          String
-  userId          String
+  feedId          String?
+  userId          String?
   status          String?
   createdAt       DateTime @default(now())
   notes           String?
   assignedAgentId String?
-  feed            Feed     @relation(fields: [feedId], references: [id])
+  type            String?
+  whatsappStatus  Boolean?
+  mailStatus      Boolean?
+  campaignId      String?
+  campaignAssigned  Boolean?
+  feed            Feed?     @relation(fields: [feedId], references: [id])
 }
+
+model Token {
+  appName         String?  
+  accessToken     String?
+  pageId          Int     @id @unique
+  expiresAt       DateTime?
+}
+
+model Campaign {
+  id                 String   @id @default(uuid())
+  name            String
+  description     String?
+  active          Boolean  @default(false)
+  userId          String
+  createdAt   DateTime @default(now())
+  template        String?
+  platform        String?
+}
+

@@ -51,6 +51,8 @@ export default async function LeadListingPage({}: LeadListingPageProps) {
   // Extract the leads and total_leads from the response
   const totalLeads = data.total_feeds;
   const leads = data.feeds;
+
+  
   // console.log( 'Total Leads:', totalLeads );
   // console.log( 'Leads:', leads );
 

@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { redis } from "@/lib/redis";
 import { ragChat } from "@/lib/rag-chat";
+import { crawlWebsiteToPDF } from "@/lib/crawl-web";
 
 export async function GET() {
   try {
@@ -99,74 +100,76 @@ export async function POST(req) {
 
     const websitesFilePath = path.join(uploadDir, "websites.txt");
 
-    // Initialize a set to hold existing websites
-    let websitesSet = new Set<string>();
-    let existingWebsites = "";
+    await crawlWebsiteToPDF(newWebsitesString)
 
-    try {
-      existingWebsites = await readFile(websitesFilePath, "utf-8");
-      // Create a set of websites by splitting on commas and trimming extra whitespace
-      websitesSet = new Set(
-        existingWebsites
-          .split(",")
-          .map((site) => site.trim())
-          .filter(Boolean)
-      );
-    } catch (err) {
-      // If the file doesn't exist, we'll simply proceed
-      console.log(err?.message);
-    }
+    // // Initialize a set to hold existing websites
+    // let websitesSet = new Set<string>();
+    // let existingWebsites = "";
 
-    // Split and clean up the new websites string
-    const newWebsites = newWebsitesString
-      .split(",")
-      .map((site) => site.trim())
-      .filter(Boolean);
+    // try {
+    //   existingWebsites = await readFile(websitesFilePath, "utf-8");
+    //   // Create a set of websites by splitting on commas and trimming extra whitespace
+    //   websitesSet = new Set(
+    //     existingWebsites
+    //       .split(",")
+    //       .map((site) => site.trim())
+    //       .filter(Boolean)
+    //   );
+    // } catch (err) {
+    //   // If the file doesn't exist, we'll simply proceed
+    //   console.log(err?.message);
+    // }
 
-    // Determine which websites are not already present
-    const websitesToAdd = newWebsites.filter((site) => !websitesSet.has(site));
+    // // Split and clean up the new websites string
+    // const newWebsites = newWebsitesString
+    //   .split(",")
+    //   .map((site) => site.trim())
+    //   .filter(Boolean);
 
-    // If there are new websites, update the file and Redis
-    if (websitesToAdd.length > 0) {
-      let updatedWebsites = "";
-      if (existingWebsites.trim() === "") {
-        // No websites exist yet
-        updatedWebsites = websitesToAdd.join(", ");
-      } else {
-        // Append the new websites to the existing list
-        updatedWebsites =
-          existingWebsites.trim() + ", " + websitesToAdd.join(", ");
-      }
+    // // Determine which websites are not already present
+    // const websitesToAdd = newWebsites.filter((site) => !websitesSet.has(site));
 
-      // Write the updated websites to the file
-      await writeFile(websitesFilePath, updatedWebsites);
+    // // If there are new websites, update the file and Redis
+    // if (websitesToAdd.length > 0) {
+    //   let updatedWebsites = "";
+    //   if (existingWebsites.trim() === "") {
+    //     // No websites exist yet
+    //     updatedWebsites = websitesToAdd.join(", ");
+    //   } else {
+    //     // Append the new websites to the existing list
+    //     updatedWebsites =
+    //       existingWebsites.trim() + ", " + websitesToAdd.join(", ");
+    //   }
 
-      // Add the new websites to Redis and ragChat context
-      for (const website of websitesToAdd) {
-        // Check if the website is already indexed in Redis
-        const isAlreadyIndexedInRedis = await redis.sismember(
-          user.fullName || "Unknown",
-          website
-        );
-        if (isAlreadyIndexedInRedis) {
-          console.log(
-            `⏩ Skipping website already indexed in Redis: ${website}`
-          );
-          continue;
-        }
+    //   // Write the updated websites to the file
+    //   await writeFile(websitesFilePath, updatedWebsites);
 
-        // Add the website to Redis if not indexed
-        await redis.sadd(user.fullName || "Unknown", website);
+    //   // Add the new websites to Redis and ragChat context
+    //   for (const website of websitesToAdd) {
+    //     // Check if the website is already indexed in Redis
+    //     const isAlreadyIndexedInRedis = await redis.sismember(
+    //       user.fullName || "Unknown",
+    //       website
+    //     );
+    //     if (isAlreadyIndexedInRedis) {
+    //       console.log(
+    //         `⏩ Skipping website already indexed in Redis: ${website}`
+    //       );
+    //       continue;
+    //     }
 
-        // Add the website to ragChat context if not already present
-        await ragChat.context.add({
-          type: "html",
-          source: website,
-        });
+    //     // Add the website to Redis if not indexed
+    //     await redis.sadd(user.fullName || "Unknown", website);
 
-        console.log(`✅ Indexed and added to context: ${website}`);
-      }
-    }
+    //     // Add the website to ragChat context if not already present
+    //     await ragChat.context.add({
+    //       type: "html",
+    //       source: website,
+    //     });
+
+    //     console.log(`✅ Indexed and added to context: ${website}`);
+    //   }
+    // }
 
     return NextResponse.json(
       { message: "Websites saved and indexed successfully!" },

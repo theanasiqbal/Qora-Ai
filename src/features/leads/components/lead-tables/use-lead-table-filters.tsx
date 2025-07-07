@@ -12,6 +12,13 @@ export const STATUS_OPTIONS = [
 ];
 
 export function useLeadTableFilters() {
+
+  
+  const [salesforceLeads, setSalesforceLeads] = useQueryState(
+    'salesforceLeads',
+    searchParams.scheduledFilter.withOptions({ shallow: false }).withDefault(false)
+  );
+
   const [searchQuery, setSearchQuery] = useQueryState(
     'q',
     searchParams.q
@@ -43,6 +50,8 @@ export function useLeadTableFilters() {
   return {
     searchQuery,
     setSearchQuery,
+    salesforceLeads,
+    setSalesforceLeads,
     page,
     setPage,
     resetFilters,

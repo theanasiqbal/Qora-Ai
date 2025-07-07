@@ -18,6 +18,7 @@ import FormattingPanel from "./FormattingPanel";
 import toast from "react-hot-toast";
 import Image from "next/image";
 import BrainModal from "./modal/brain-modal";
+import { currentUser } from "@clerk/nextjs/server";
 
 type Chat = {
   chatId: string;
@@ -37,6 +38,11 @@ export const ChatWrapper = ({
   sessionId: string;
   initialMessages: any;
 }) => {
+  // const { user } = useUser();
+  // const companyName = user?.fullName;
+  // const cookieChatId = getCookie("chatId");
+  // const dynamicSessionId = `${companyName}-${cookieChatId || "Unknown"}`;
+
   const {
     messages,
     handleInputChange,
@@ -48,6 +54,7 @@ export const ChatWrapper = ({
     api: "/api/chat-stream",
     body: { sessionId },
     initialMessages,
+    credentials: "include",
   });
 
   const [chatGroups, setChatGroups] = useState<GroupedChats>({});
@@ -57,7 +64,7 @@ export const ChatWrapper = ({
   const [formattedContent, setFormattedContent] = useState("");
   const [isBrainModalOpen, setIsBrainModalOpen] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
-  const { user } = useUser();
+  const orderedLabels = ["Today", "Yesterday", "Last 7 Days", "Older"];
 
   const groupChatsByDate = (chats: Chat[]): GroupedChats => {
     const groups: GroupedChats = {};
@@ -138,6 +145,7 @@ export const ChatWrapper = ({
   };
 
   const handleCloseFormattingPanel = () => {
+    setFormattedContent("")
     setIsFormattingPanelOpen(false);
     setIsMailMode(false);
   };
@@ -191,27 +199,32 @@ export const ChatWrapper = ({
           </div>
 
           {Object.keys(chatGroups).length > 0 ? (
-            Object.entries(chatGroups).map(([label, chats]) => (
-              <div key={label} className="mb-4">
-                <h4 className="text-sm text-gray-400 mb-1">{label}</h4>
-                <ul className="ml-2 space-y-1">
-                  {chats.map((chat) => (
-                    <li
-                      key={chat.chatId}
-                      onClick={() => handleChatSelect(chat.chatId)}
-                      className="text-sm hover:bg-gray-700 p-2 rounded cursor-pointer text-gray-300"
-                    >
-                      {chat.lastMessage.length > 15
-                        ? chat.lastMessage.slice(0, 15) + "..."
-                        : chat.lastMessage}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-400 text-sm">No chats found</p>
-          )}
+  orderedLabels.map((label) =>
+    chatGroups[label]?.length ? (
+      <div key={label} className="mb-4">
+        <h4 className="text-sm text-gray-400 mb-1">{label}</h4>
+        <ul className="ml-2 space-y-1">
+          {chatGroups[label].map((chat) => (
+            <li
+              key={chat.chatId}
+              onClick={() => handleChatSelect(chat.chatId)}
+              className="text-sm hover:bg-gray-700 p-2 rounded cursor-pointer text-gray-300"
+            >
+              {(() => {
+                const words = chat.lastMessage.trim().split(/\s+/);
+                return words.length > 3
+                  ? words.slice(0, 3).join(" ") + "..."
+                  : chat.lastMessage;
+              })()}
+            </li>
+          ))}
+        </ul>
+      </div>
+    ) : null
+  )
+) : (
+  <p className="text-gray-400 text-sm">No chats found</p>
+)}
         </div>
       )}
 

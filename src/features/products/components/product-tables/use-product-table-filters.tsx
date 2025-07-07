@@ -16,7 +16,10 @@ export const CATEGORY_OPTIONS = [
 ];
 export function useProductTableFilters() {
 
-    const [scheduledFilter, setScheduledFilter] = useState<boolean | null>(null);
+  const [scheduledFilter, setScheduledFilter] = useQueryState(
+  'scheduled',
+  searchParams.scheduledFilter.withOptions({ shallow: false }).withDefault(false)
+);
 
   const [searchQuery, setSearchQuery] = useQueryState(
     'q',
@@ -36,15 +39,17 @@ export function useProductTableFilters() {
   );
 
   const resetFilters = useCallback(() => {
-    setSearchQuery(null);
-    setCategoriesFilter(null);
+  setSearchQuery(null);
+  setCategoriesFilter(null);
+  setScheduledFilter(null);
+  setPage(1);
+}, [setSearchQuery, setCategoriesFilter, setScheduledFilter, setPage]);
 
-    setPage(1);
-  }, [setSearchQuery, setCategoriesFilter, setPage]);
 
   const isAnyFilterActive = useMemo(() => {
-    return !!searchQuery || !!categoriesFilter;
-  }, [searchQuery, categoriesFilter]);
+  return !!searchQuery || !!categoriesFilter || scheduledFilter;
+}, [searchQuery, categoriesFilter, scheduledFilter]);
+
 
   return {
     searchQuery,

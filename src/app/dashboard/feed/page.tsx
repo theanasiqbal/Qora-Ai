@@ -27,7 +27,7 @@ export default async function Page(props: pageProps) {
   return (
     <PageContainer scrollable={false}>
       <div className='flex flex-1 flex-col space-y-4'>
-        <div className='flex items-start justify-between'>
+        {/* <div className='flex items-start justify-between'>
           <Heading
             title='Feeds'
             description='Manage feeds'
@@ -38,7 +38,7 @@ export default async function Page(props: pageProps) {
           >
             <Plus className='mr-2 h-4 w-4' /> Add New
           </Link> */}
-        </div>
+        {/* </div> */}
         <Separator />
         <ProductTableAction />
         <Suspense

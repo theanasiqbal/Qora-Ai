@@ -4,44 +4,33 @@ import path from "path";
 import fs from "fs";
 import { cookies } from "next/headers";
 import { currentUser } from "@clerk/nextjs/server";
+import { uploadToAzureBlob } from "@/lib/azure";
 
 export async function POST(req) {
   const { searchParams } = new URL(req.url);
   const documents = searchParams.get("documents");
   const user = await currentUser();
   if (documents) {
-    try {
+     try {
       const data = await req.formData();
-      const files = data.getAll("files");
-      const uploadDir = path.join(
-        process.cwd(),
-        "public",
-        "data",
-        user?.fullName,
-        "documents"
-      );
+      const files = data.getAll("files") as File[];
 
-      await mkdir(uploadDir, { recursive: true });
-
-      // Save each file into the correct folder
-      await Promise.all(
+      const uploadedUrls = await Promise.all(
         files.map(async (file) => {
           const bytes = await file.arrayBuffer();
           const buffer = Buffer.from(bytes);
-          const filePath = path.join(uploadDir, file.name);
-          await writeFile(filePath, buffer);
+          const url = await uploadToAzureBlob(buffer, file.name, `${user?.id}`);
+          return url;
         })
       );
 
       return NextResponse.json(
-        { message: `Files uploaded successfully!` },
+        { message: "Files uploaded successfully!", urls: uploadedUrls },
         { status: 200 }
       );
     } catch (error) {
-      return NextResponse.json(
-        { error: "File upload failed!" },
-        { status: 500 }
-      );
+      console.error("Upload error:", error);
+      return NextResponse.json({ error: "Upload failed" }, { status: 500 });
     }
   } else {
     try {

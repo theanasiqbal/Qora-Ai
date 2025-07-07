@@ -9,6 +9,8 @@ import {
 } from './use-lead-table-filters';
 import { UserRoundPlus } from 'lucide-react';
 import AddUserModal from '@/components/modals/AddUserModal';
+import { Switch } from '@radix-ui/react-switch';
+import AssignCampaignModal from '@/components/modals/AssignCampaignModal';
 
 export default function LeadTableAction() {
   const {
@@ -17,6 +19,8 @@ export default function LeadTableAction() {
     isAnyFilterActive,
     resetFilters,
     searchQuery,
+    salesforceLeads,
+    setSalesforceLeads,
     setPage,
     setSearchQuery
   } = useLeadTableFilters();
@@ -36,12 +40,29 @@ export default function LeadTableAction() {
         setFilterValueAction={setStatusFilter}
         filterValue={statusFilter}
       />
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-white">Salesforce Only</span>
+        <Switch
+          checked={!!salesforceLeads}
+          onCheckedChange={(checked) => setSalesforceLeads(checked)}
+          className={`${
+            salesforceLeads ? "bg-indigo-600" : "bg-gray-400"
+          } relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200`}
+        >
+          <span className="sr-only">Toggle salesforce filter</span>
+          <span
+            className={`${
+              salesforceLeads ? "translate-x-5" : "translate-x-0"
+            } inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200`}
+          />
+        </Switch>
+      </div>
       <DataTableResetFilter
         isFilterActive={isAnyFilterActive}
         onReset={resetFilters}
       />
          <AddUserModal />
-         
+         <AssignCampaignModal />
     </div>
   );
 }

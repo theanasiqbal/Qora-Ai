@@ -13,6 +13,7 @@ import TiptapEditor from "./TipTapEditor";
 import exportContentAsPdf from "@/lib/generatePdf";
 import { useUser } from "@clerk/nextjs";
 import toast from "react-hot-toast";
+import LinkedInModal from "./linkedIn/LinkedInModal";
 
 const FormattingPanel = ({
   isOpen,
@@ -31,7 +32,30 @@ const FormattingPanel = ({
   const [pendingSharePlatform, setPendingSharePlatform] = useState(null);
   const [scheduleLater, setScheduleLater] = useState(false);
   const [scheduledAt, setScheduledAt] = useState();
+  const [isLinkedInModalOpen, setLinkedInModalOpen] = useState(false);
+  const [campaigns, setCampaigns] = useState([]);
+  const [selectedCampaignName, setSelectedCampaignName] = useState<
+    string | null
+  >(null);
   const { user } = useUser();
+
+  useEffect(() => {
+    const fetchCampaigns = async () => {
+      try {
+        const res = await fetch("/api/campaign");
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.error || "Failed to fetch campaigns");
+
+        setCampaigns(data.campaigns || []);
+      } catch (error: any) {
+        console.error("Fetch Error:", error);
+        toast.error(error.message || "Error loading campaigns");
+      }
+    };
+
+    fetchCampaigns();
+  }, []);
 
   // Update formattedContent whenever initialContent changes
   useEffect(() => {
@@ -82,61 +106,15 @@ const FormattingPanel = ({
     }
   };
 
-  const scheduleForLater = async () => {
-    try {
-      const response = await fetch("/api/feed", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId: user?.id,
-          content: formattedContent,
-          prompt: promptValue,
-          ...(scheduledAt ? { scheduledOn: scheduledAt } : {}),
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        toast.success("Scheduled successfully!");
-        setShowPromptPopup(false);
-        setPromptValue("");
-        setScheduledAt(null);
-        setScheduleLater(false);
-      } else {
-        toast.error(data.error || "Something went wrong.");
-      }
-    } catch (error) {
-      toast.error("Failed to schedule. Please try again.");
-      console.error("Schedule error:", error);
-    }
-  };
-
   const performShare = async (platform) => {
     let shareUrl = "";
+    let salesMagnetLink = "";
+    let contentWithTitle = "";
+    let feedId = "";
 
-    switch (platform) {
-      case "linkedin":
-        shareUrl = "https://www.linkedin.com/post/new";
-        copyFormattedText();
-        break;
-      case "facebook":
-        shareUrl = "https://www.facebook.com/sharer/sharer.php";
-        copyPlainText();
-        break;
-      case "discord":
-        shareUrl = "https://discord.com/channels/@me";
-        copyPlainText();
-        break;
-      default:
-        return;
-    }
-
+    // 1. Handle SalesMagnet logic (if enabled)
     if (isSalesMagnetEnabled) {
       try {
-        // Create a draft in the database
         const response = await fetch("/api/feed", {
           method: "POST",
           headers: {
@@ -146,40 +124,93 @@ const FormattingPanel = ({
             userId: user?.id,
             content: formattedContent,
             prompt: promptValue,
+            campaign: selectedCampaignName,
           }),
         });
 
         const data = await response.json();
         const { feed } = data;
+        feedId = feed?.id;
 
-        // Generate the SalesMagnet link
-        const salesMagnetLink = `http://localhost:3001/sales-magnet/${user?.id}/${feed?.id}`;
+        salesMagnetLink = `http://localhost:3001/sales-magnet/${user?.id}/${feed?.id}`;
 
-        // Include the content title in the copied text
-        const contentWithTitle = `<h2>${
-          contentTitle
-        }</h2>\n\n${formattedContent}\n\nCheckout: ${salesMagnetLink}`;
+        contentWithTitle = `<h2>${contentTitle}</h2>\n\n${formattedContent}\n\nCheckout: <a>${salesMagnetLink}</a>`;
 
-        // Create a Blob with HTML content type for formatted text
         const htmlBlob = new Blob([contentWithTitle], { type: "text/html" });
-
-        // Create a ClipboardItem with the HTML blob
         const clipboardItem = new ClipboardItem({
           "text/html": htmlBlob,
           "text/plain": new Blob([contentWithTitle], { type: "text/plain" }),
         });
 
-        // Write to clipboard with format
         await navigator.clipboard.write([clipboardItem]);
       } catch (error) {
         console.error("Error creating draft:", error);
       }
     }
 
-    // Open the share URL
-    window.open(shareUrl, "_blank");
+    // 2. Platform-specific share handling
+    switch (platform) {
+      case "linkedin":
+        shareUrl = "https://www.linkedin.com/post/new";
+        copyFormattedText();
+        break;
 
-    // Reset the popup
+      case "facebook":
+        // Post to Facebook using your API
+        try {
+          const response = await fetch("/api/facebook/post", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              message: isSalesMagnetEnabled
+                ? contentWithTitle
+                    .replace(/<(?!\/?a(?=>|\s.*>))[^>]*>/g, "")
+                    .replace(/&quot;/g, '"')
+                    .replace(/&#39;/g, "'")
+                    .replace(/&amp;/g, "&")
+                    .replace(/&lt;/g, "<")
+                    .replace(/&gt;/g, ">")
+                : formattedContent
+                    .replace(/<(?!\/?a(?=>|\s.*>))[^>]*>/g, "")
+                    .replace(/&quot;/g, '"')
+                    .replace(/&#39;/g, "'")
+                    .replace(/&amp;/g, "&")
+                    .replace(/&lt;/g, "<")
+                    .replace(/&gt;/g, ">"),
+              feedId,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            toast.success("Posted to Facebook successfully!");
+          } else {
+            console.error("Post failed:", data.error);
+            toast.error("Failed to post on Facebook.");
+          }
+        } catch (err) {
+          console.error("Request error:", err);
+          alert("Something went wrong.");
+        }
+
+        break;
+
+      case "discord":
+        shareUrl = "https://discord.com/channels/@me";
+        copyPlainText();
+        break;
+
+      default:
+        return;
+    }
+
+    // 3. Open share link
+    // window.open(shareUrl, "_blank");
+
+    // 4. Reset UI state
     setShowPromptPopup(false);
     setPromptValue("");
   };
@@ -202,6 +233,39 @@ const FormattingPanel = ({
       emailSubject
     )}&body=${encodeURIComponent(formattedContent)}`; // Changed to use formatted content directly
     window.location.href = mailtoLink;
+  };
+
+  const scheduleForLater = async () => {
+    try {
+      const response = await fetch("/api/feed", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user?.id,
+          content: formattedContent,
+          prompt: promptValue,
+          ...(scheduledAt ? { scheduledOn: scheduledAt } : {}),
+          campaign: selectedCampaignName,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success("Scheduled successfully!");
+        setShowPromptPopup(false);
+        setPromptValue("");
+        setScheduledAt(null);
+        setScheduleLater(false);
+      } else {
+        toast.error(data.error || "Something went wrong.");
+      }
+    } catch (error) {
+      toast.error("Failed to schedule. Please try again.");
+      console.error("Schedule error:", error);
+    }
   };
 
   return (
@@ -332,7 +396,7 @@ const FormattingPanel = ({
                     <TiptapEditor
                       content={formattedContent}
                       setContent={setFormattedContent}
-                      editorOptions={{ immediatelyRender: false }}
+                      editorOptions={{ immediatelyRender: true }}
                     />
                   </div>
                 </div>
@@ -358,7 +422,10 @@ const FormattingPanel = ({
                 <>
                   <div className="flex items-center space-x-2">
                     <a
-                      onClick={() => handlePostClick("linkedin")}
+                      onClick={() => {
+                        // handlePostClick()
+                        // setLinkedInModalOpen(true)
+                      }}
                       className="text-white bg-[#0077B5] hover:bg-[#0077B5]/90 focus:ring-4 focus:outline-none focus:ring-[#0077B5]/50 font-medium rounded-lg text-sm px-4 py-2 inline-flex items-center dark:focus:ring-[#0077B5]/55 mb-2 cursor-pointer"
                       title="Post on LinkedIn + Ctrl V"
                     >
@@ -366,7 +433,9 @@ const FormattingPanel = ({
                     </a>
 
                     <a
-                      onClick={() => handlePostClick("facebook")}
+                      onClick={() => {
+                        handlePostClick("facebook");
+                      }}
                       className="text-white bg-[#3b5998] hover:bg-[#3b5998]/90 focus:ring-4 focus:outline-none focus:ring-[#3b5998]/50 font-medium rounded-lg text-sm px-4 py-2 inline-flex items-center dark:focus:ring-[#3b5998]/55 mb-2 cursor-pointer"
                       title="Post on Facebook + Ctrl V"
                     >
@@ -374,7 +443,7 @@ const FormattingPanel = ({
                     </a>
 
                     <a
-                      onClick={() => handlePostClick("discord")}
+                      // onClick={() => handlePostClick("discord")}
                       className="text-white bg-[#7289DA] hover:bg-[#7289DA]/90 focus:ring-4 focus:outline-none focus:ring-[#7289DA]/50 font-medium rounded-lg text-sm px-4 py-2 inline-flex items-center dark:focus:ring-[#7289DA]/55 mb-2 cursor-pointer"
                       title="Post on Discord + Ctrl V"
                     >
@@ -461,6 +530,30 @@ const FormattingPanel = ({
                   />
                 </div>
 
+                <div className="space-y-2">
+                  <label
+                    htmlFor="campaign"
+                    className="text-sm font-medium text-purple-200 block"
+                  >
+                    Select Campaign
+                  </label>
+                  <select
+                    id="campaign"
+                    value={selectedCampaignName ?? ""}
+                    onChange={(e) => setSelectedCampaignName(e.target.value)}
+                    className="w-full px-4 py-3 rounded-lg bg-[#211c35] border border-purple-900/50 text-white placeholder-purple-300/50 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all"
+                  >
+                    <option value="" disabled>
+                      -- Select Campaign --
+                    </option>
+                    {campaigns.map((campaign) => (
+                      <option key={campaign.id} value={campaign.name}>
+                        {campaign.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 {scheduleLater && (
                   <div className="space-y-2">
                     <label
@@ -508,6 +601,10 @@ const FormattingPanel = ({
           </motion.div>
         )}
       </AnimatePresence>
+      <LinkedInModal
+        isOpen={isLinkedInModalOpen}
+        onClose={() => setLinkedInModalOpen(false)}
+      />
     </>
   );
 };

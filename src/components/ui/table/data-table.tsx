@@ -16,6 +16,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useLeadTableFilters } from "@/features/leads/components/lead-tables/use-lead-table-filters";
+import { useProductTableFilters } from "@/features/products/components/product-tables/use-product-table-filters";
 import {
   DoubleArrowLeftIcon,
   DoubleArrowRightIcon,
@@ -31,6 +33,7 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { parseAsInteger, useQueryState } from "nuqs";
+import { useEffect } from "react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -65,9 +68,9 @@ export function DataTable<TData, TValue>({
     pageSize: pageSize,
   };
 
-  const router = useRouter()
-
-  const pageCount = Math.ceil(totalItems / pageSize);
+  const router = useRouter();
+  const { scheduledFilter } = useProductTableFilters();
+  const { salesforceLeads } = useLeadTableFilters();
 
   const handlePaginationChange = (
     updaterOrValue:
@@ -83,8 +86,31 @@ export function DataTable<TData, TValue>({
     setPageSize(pagination.pageSize);
   };
 
+  let filteredData = data;
+
+  if (feed && scheduledFilter) {
+    filteredData = filteredData.filter(
+      (item: any) => item.scheduledOn !== null
+    );
+  }
+
+  if (lead && salesforceLeads) {
+    filteredData = filteredData.filter(
+      (item: any) => item.type === "salesforce"
+    );
+  }
+
+  // Now paginate after filtering
+  const filteredTotal = filteredData.length;
+
+  const paginatedData = filteredData.slice(
+    paginationState.pageIndex * paginationState.pageSize,
+    (paginationState.pageIndex + 1) * paginationState.pageSize
+  );
+  const pageCount = Math.ceil(filteredTotal / pageSize);
+
   const table = useReactTable({
-    data,
+    data: paginatedData,
     columns,
     pageCount: pageCount,
     state: {
@@ -132,10 +158,10 @@ export function DataTable<TData, TValue>({
                           router.push(`/dashboard/lead?id=${row.original?.id}`);
                         }
                       }}
-                      className={`${lead || feed ? "hover:cursor-pointer": ""}`}
+                      className={`${lead || feed ? "hover:cursor-pointer" : ""}`}
                     >
                       {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id} >
+                        <TableCell key={cell.id}>
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext()
@@ -164,15 +190,15 @@ export function DataTable<TData, TValue>({
       <div className="flex flex-col items-center justify-end gap-2 space-x-2 py-2 sm:flex-row">
         <div className="flex w-full items-center justify-between">
           <div className="flex-1 text-sm text-muted-foreground">
-            {totalItems > 0 ? (
+            {filteredTotal > 0 ? (
               <>
                 Showing{" "}
                 {paginationState.pageIndex * paginationState.pageSize + 1} to{" "}
                 {Math.min(
                   (paginationState.pageIndex + 1) * paginationState.pageSize,
-                  totalItems
+                  filteredTotal
                 )}{" "}
-                of {totalItems} entries
+                of {filteredTotal} entries
               </>
             ) : (
               "No entries found"
@@ -207,7 +233,8 @@ export function DataTable<TData, TValue>({
           <div className="flex w-[150px] items-center justify-center text-sm font-medium">
             {totalItems > 0 ? (
               <>
-                Page {paginationState.pageIndex + 1} of {table.getPageCount()}
+                Page {paginationState.pageIndex + 1} of{" "}
+                {Math.ceil(filteredTotal / paginationState.pageSize)}
               </>
             ) : (
               "No pages"

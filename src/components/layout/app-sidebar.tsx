@@ -65,7 +65,7 @@ export default function AppSidebar() {
           <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
             <Bot className="size-4" />
           </div>
-          <span className="truncate font-semibold pt-1">Qora.ai</span>
+          <Link href={'/'} className="truncate font-semibold pt-1">Qora.ai</Link>
         </div>
       </SidebarHeader>
       <SidebarContent className="overflow-x-hidden">
