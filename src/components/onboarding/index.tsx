@@ -10,11 +10,9 @@ import { Ripple } from "@/components/Ripple";
 import { BorderBeam } from "@/components/Beam";
 import { AnimatedList } from "@/components/AnimatedList";
 import toast from "react-hot-toast";
-
-
+import { FileText, Upload, X } from "lucide-react";
 
 export default function OnBoarding() {
-
   const [selectedAgents, setSelectedAgents] = useState([]);
   const [step, setStep] = useState(1);
   const { user } = useUser(); // Get authenticated user
@@ -51,7 +49,8 @@ export default function OnBoarding() {
       time: "2m ago",
       icon: "🗞️",
       color: "#1E86FF",
-    }, {
+    },
+    {
       name: "Payment received",
       description: "Magic UI",
       time: "15m ago",
@@ -87,7 +86,7 @@ export default function OnBoarding() {
     location: "",
     type: "",
     website: "",
-    profileUrl: ""
+    profileUrl: "",
   });
 
   useEffect(() => {
@@ -104,23 +103,43 @@ export default function OnBoarding() {
 
   // Agents for selection
   const agents = [
-    { id: "oliver", name: "Oliver", role: "Sales Agent", selected: false, image: "/image/carousel1.png" },
-    { id: "cassie", name: "Cassie", role: "Marketing Agent", selected: false, image: "/image/carousel2.png" },
-    { id: "cooper", name: "Cooper", role: "Social Media Manager", selected: false, image: "/image/carousel3.png" },
-    { id: "james", name: "James", role: "Finance Manager", selected: false, image: "/image/carousel4.png" },
+    {
+      id: "oliver",
+      name: "Oliver",
+      role: "Sales Agent",
+      selected: false,
+      image: "/image/carousel1.png",
+    },
+    {
+      id: "cassie",
+      name: "Cassie",
+      role: "Marketing Agent",
+      selected: false,
+      image: "/image/carousel2.png",
+    },
+    {
+      id: "cooper",
+      name: "Cooper",
+      role: "Social Media Manager",
+      selected: false,
+      image: "/image/carousel3.png",
+    },
+    {
+      id: "james",
+      name: "James",
+      role: "Finance Manager",
+      selected: false,
+      image: "/image/carousel4.png",
+    },
   ];
 
   // Integration options
   const [integrations, setIntegrations] = useState({
     salesforce: false,
-    hubspot: false
+    hubspot: false,
   });
 
-  // Predefined folders
-  const defaultFolders = ["Legal", "Customer", "Products", "Sales", "Finance"];
-  const [folders, setFolders] = useState([...defaultFolders]);
-  const [folderName, setFolderName] = useState("");
-  const [files, setFiles] = useState({});
+  const [files, setFiles] = useState([]);
   const [fileUploadProgress, setFileUploadProgress] = useState(0);
   const [loading, setLoading] = useState(false);
 
@@ -162,39 +181,11 @@ export default function OnBoarding() {
     setSources(sources.filter((_, i) => i !== index));
   };
 
-  // Handle adding a new folder
-  const addFolder = () => {
-    if (folderName.trim() !== "" && !folders.includes(folderName)) {
-      setFolders([...folders, folderName]);
-      setFiles({ ...files, [folderName]: [] });
-      setFolderName("");
-    }
-  };
-
   // Function to handle file uploads
-  const handleFileChange = (folder, event) => {
-    const uploadedFiles = event.target.files;
-
-    // Update the files state for the respective folder
-    setFiles({
-      ...files,
-      [folder]: [...uploadedFiles],  // Store the uploaded files for that folder
-    });
-
-    // Calculate the total number of files uploaded across all folders
-    const totalFileCount = Object.values(files).reduce((acc, fileArr) => acc + fileArr.length, 0) + uploadedFiles.length;
-
-    // Calculate the total number of folders
-    const totalFolders = folders.length;
-
-    // Assuming each folder can hold 1 file for 100% progress, we calculate the progress per folder
-    const progressPerFolder = 100 / totalFolders;
-
-    // Calculate the progress based on how many files have been uploaded
-    const fileUploadProgress = (totalFileCount / totalFolders) * progressPerFolder;
-
-    // Set the total file upload progress
-    setFileUploadProgress(fileUploadProgress);
+  const handleFileChange = (event) => {
+    const selectedFiles = Array.from(event.target.files);
+    setFiles(selectedFiles);
+    setFileUploadProgress((selectedFiles.length / 10) * 100); // adjust based on assumption
   };
 
   const [popupVisible, setPopupVisible] = useState(false);
@@ -249,32 +240,48 @@ export default function OnBoarding() {
     // }
 
     // Upload files for each folder
-    for (const folder in files) {
-      if (files[folder].length > 0) {
-        const data = new FormData();
-        data.append("name", formData.name);
-        data.append("folder", folder);
-        files[folder].forEach((file) => data.append("files", file));
+    if (files.length > 0) {
+      const data = new FormData();
 
-        const response = await fetch("/api/upload", {
-          method: "POST",
-          body: data,
-        });
+      files.forEach((file) => data.append("files", file));
 
-        const result = await response.json();
-        if (!response.ok) {
-          toast.error(`Error uploading files in ${folder}: ${result.error}`);
-        }
+      const response = await fetch(`/api/upload?documents=${true}`, {
+        method: "POST",
+        body: data,
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        toast.error(`Error uploading files: ${result.error}`);
+      }
+    }
+    if (sources.length > 0) {
+      const data = new FormData();
+
+      data.append("websites", sources.join(", "));
+
+      const response = await fetch(`/api/upload?websites=${true}`, {
+        method: "POST",
+        body: data,
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        toast.error(`Error uploading sources: ${result.error}`);
       }
     }
     setPopupVisible(true);
     setTimeout(() => {
-      window.location.replace("/chat");  // Forces a full reload after the 10-second pause
+      window.location.replace("/chat"); // Forces a full reload after the 10-second pause
     }, 20000);
     toast.success("Setup completed successfully!");
     setTimeout(() => {
       window.location.replace("/chat"); // Forces a full reload
     }, 0);
+  };
+
+  const handleRemoveFile = (fileName: string) => {
+    setFiles(files.filter((file) => file.name !== fileName));
   };
 
   // Move to next step
@@ -283,7 +290,7 @@ export default function OnBoarding() {
 
     if (step === 1) {
       if (selectedAgents.length > 0) {
-        setShowSidebar(true);  // Show the left sidebar after selecting an agent
+        setShowSidebar(true); // Show the left sidebar after selecting an agent
         setStep(2);
       } else {
         toast.error("Please select at least one agent.");
@@ -303,7 +310,7 @@ export default function OnBoarding() {
     // Step 1 - Persona Selection Progress
     if (step === 1) {
       if (selectedAgents.length > 0) {
-        progress = 33;  // Mark Step 1 as 33% complete when an agent is selected
+        progress = 33; // Mark Step 1 as 33% complete when an agent is selected
       }
     }
 
@@ -322,17 +329,11 @@ export default function OnBoarding() {
 
     // Step 3 - Workspace Setup (Folders Creation and File Upload Progress)
     if (step === 3) {
-      progress = 52;  // Step 3 starts at 52%
-
-      // Add the progress based on how many files have been uploaded across the folders
-      const totalFolders = folders.length;
-      const totalFilesUploaded = Object.values(files).reduce((acc, fileArr) => acc + fileArr.length, 0);
-
-      // Calculate the progress based on the uploaded files
-      // If totalFolders = 5, each folder will contribute (52 / 5) = 10.4% to the total progress.
-      const fileProgress = (totalFilesUploaded / totalFolders) * 52;
-      progress += fileProgress; // Add file upload progress
-
+      progress = 52;
+      const totalFilesUploaded = files.length;
+      const assumedTotal = 10; // arbitrary max to calculate percentage
+      const fileProgress = (totalFilesUploaded / assumedTotal) * 48; // so max is 100%
+      progress += fileProgress;
     }
 
     // Ensure the progress doesn't exceed 100%
@@ -343,7 +344,7 @@ export default function OnBoarding() {
 
   useEffect(() => {
     calculateProgress();
-  }, [folders]);
+  }, [files]);
   // Move to previous step
   const prevStep = () => {
     if (step > 1) {
@@ -360,9 +361,9 @@ export default function OnBoarding() {
       {showSidebar && selectedAgents.length > 0 && (
         <motion.div
           className="fixed left-0 top-0 w-1/4 h-full p-6 flex flex-col justify-center items-center"
-          initial={{ opacity: 0, x: '100%' }}  // Start from the left (hidden state)
-          animate={{ opacity: 1, x: 0 }}       // Slide to the left (on-screen)
-          exit={{ opacity: 0, x: '100%' }}     // Slide back to the right (off-screen)
+          initial={{ opacity: 0, x: "100%" }} // Start from the left (hidden state)
+          animate={{ opacity: 1, x: 0 }} // Slide to the left (on-screen)
+          exit={{ opacity: 0, x: "100%" }} // Slide back to the right (off-screen)
           transition={{
             type: "spring",
             stiffness: 300,
@@ -378,15 +379,21 @@ export default function OnBoarding() {
                 <div className="relative w-44 h-44">
                   {/* Image */}
                   <img
-                    src={agents.find(agent => agent.id === selectedAgents[0])?.image}
-                    alt={agents.find(agent => agent.id === selectedAgents[0])?.name}
+                    src={
+                      agents.find((agent) => agent.id === selectedAgents[0])
+                        ?.image
+                    }
+                    alt={
+                      agents.find((agent) => agent.id === selectedAgents[0])
+                        ?.name
+                    }
                     className="w-full h-full rounded-full object-cover p-6"
                   />
 
                   {/* Animated Circular Progress Bar */}
                   <div className="absolute inset-0 flex justify-center items-center">
                     <AnimatedCircularProgressBar
-                      max={100}  // You can adjust the max value as per your requirements
+                      max={100} // You can adjust the max value as per your requirements
                       min={0}
                       value={calculateProgress()} // Pass calculated progress here
                       gaugePrimaryColor="#6b21a8" // Set to bg-purple-900 color (hex equivalent)
@@ -397,7 +404,7 @@ export default function OnBoarding() {
                 </div>
 
                 <h4 className="font-semibold text-center">
-                  {agents.find(agent => agent.id === selectedAgents[0])?.name}
+                  {agents.find((agent) => agent.id === selectedAgents[0])?.name}
                 </h4>
               </div>
             )}
@@ -406,15 +413,18 @@ export default function OnBoarding() {
       )}
 
       {/* Main Content (Right Side) */}
-      <div className={`w-full ${showSidebar ? "pl-28" : ""} flex flex-col items-center justify-center p-4`}
+      <div
+        className={`w-full ${showSidebar ? "pl-28" : ""} flex flex-col items-center justify-center p-4`}
         style={{
           position: "relative",
         }}
       >
-        <div className="relative z-10 w-full max-w-3xl bg-[#1a1725] p-8 mb-1 rounded-xl shadow-lg"
+        <div
+          className="relative z-10 w-full max-w-3xl bg-[#1a1725] p-8 mb-1 rounded-xl shadow-lg"
           style={{
             position: "relative",
-          }}>
+          }}
+        >
           <BorderBeam
             duration={6}
             size={300}
@@ -429,11 +439,13 @@ export default function OnBoarding() {
             style={{ top: 0, left: 0 }}
           />
 
-
-          <h2 className="text-white text-center text-2xl font-bold mb-6">Onboarding</h2>
+          <h2 className="text-white text-center text-2xl font-bold mb-6">
+            Onboarding
+          </h2>
 
           {/* Stepper */}
-          {agents.find(agent => agent.id === selectedAgents[0])?.name === "Oliver" ? (
+          {agents.find((agent) => agent.id === selectedAgents[0])?.name ===
+          "Oliver" ? (
             <div className="flex justify-center mb-8">
               <div className="flex items-center">
                 <div
@@ -442,14 +454,18 @@ export default function OnBoarding() {
                   1
                 </div>
                 <span className="text-gray-300 ml-2">Choose Persona</span>
-              </div><div className="w-10 h-1 bg-gray-600 mx-2 self-center"></div><div className="flex items-center">
+              </div>
+              <div className="w-10 h-1 bg-gray-600 mx-2 self-center"></div>
+              <div className="flex items-center">
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${step === 2 ? "bg-purple-600" : "bg-gray-600"}`}
                 >
                   2
                 </div>
                 <span className="text-gray-300 ml-2">Personal Info</span>
-              </div><div className="w-10 h-1 bg-gray-600 mx-2 self-center"></div><div className="flex items-center">
+              </div>
+              <div className="w-10 h-1 bg-gray-600 mx-2 self-center"></div>
+              <div className="flex items-center">
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${step === 3 ? "bg-purple-600" : "bg-gray-600"}`}
                 >
@@ -457,14 +473,14 @@ export default function OnBoarding() {
                 </div>
                 <span className="text-gray-300 ml-2">Setup Workspace</span>
               </div>
-
             </div>
           ) : null}
 
-
           {step === 1 && (
             <div className="space-y-4 overflow-hidden  pr-2 h-[60vh]">
-              <h3 className="text-white text-lg font-semibold mb-4">Choose Your Agents</h3>
+              <h3 className="text-white text-lg font-semibold mb-4">
+                Choose Your Agents
+              </h3>
 
               {/* Agent Selection Grid */}
               <div className="flex  overflow-x-auto gap-4 mb-6">
@@ -472,10 +488,11 @@ export default function OnBoarding() {
                   <div
                     key={agent.id}
                     onClick={() => toggleAgent(agent.id)}
-                    className={`p-2 rounded-lg cursor-pointer border-2 ${selectedAgents.includes(agent.id)
-                      ? "border-purple-500 bg-purple-900 bg-opacity-30"
-                      : "border-gray-700 hover:border-purple-400"
-                      }
+                    className={`p-2 rounded-lg cursor-pointer border-2 ${
+                      selectedAgents.includes(agent.id)
+                        ? "border-purple-500 bg-purple-900 bg-opacity-30"
+                        : "border-gray-700 hover:border-purple-400"
+                    }
                         ${selectedAgents.length === 0 || selectedAgents.includes(agent.id) ? "" : "blur-sm"}`}
                   >
                     <div className="w-full h-40 mx-auto mb-3 bg-[#151221] rounded-lg flex items-center justify-center">
@@ -504,10 +521,10 @@ export default function OnBoarding() {
 
           {step === 2 && (
             <div className="space-y-4">
-              {agents.find(agent => agent.id === selectedAgents[0])?.name === "Oliver" ? (
-                <form onSubmit={nextStep} >
+              {agents.find((agent) => agent.id === selectedAgents[0])?.name ===
+              "Oliver" ? (
+                <form onSubmit={nextStep}>
                   <div className="grid grid-cols-2 gap-4">
-
                     {/* Location */}
                     <div>
                       <label className="block mb-2 text-gray-300 text-left text-sm font-semibold">
@@ -575,8 +592,13 @@ export default function OnBoarding() {
               ) : (
                 // If the selected agent is not Oliver, show the "Development in Progress" message
                 <div className="text-center text-white">
-                  <h1 className="text-4xl font-bold">Development in Progress</h1>
-                  <p className="mt-4 text-lg">We are working on this feature for your selected agent. Stay tuned!</p>
+                  <h1 className="text-4xl font-bold">
+                    Development in Progress
+                  </h1>
+                  <p className="mt-4 text-lg">
+                    We are working on this feature for your selected agent. Stay
+                    tuned!
+                  </p>
                   <button
                     type="button"
                     onClick={prevStep}
@@ -590,55 +612,64 @@ export default function OnBoarding() {
           )}
 
           {step === 3 && (
-            <form onSubmit={handleSubmit} className="space-y-4 overflow-y-scroll scroll-bar pr-2 h-[60vh]">
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-4 overflow-y-scroll scroll-bar pr-2 h-[60vh]"
+            >
               {/* File Uploads per Folder */}
-              {folders.length > 0 && (
-                <div className="mt-4 mb-3 max-h-96 overflow-y-auto">
-                  <h3 className="text-white text-lg font-semibold mb-2 text-left">
-                    Upload Documents
-                  </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    {folders.map((folder, index) => (
-                      <div key={index} className="mt-2">
-                        <label className="block mb-2 text-gray-300 text-left text-sm font-semibold">
-                          {folder} Documents
-                        </label>
-                        <input
-                          type="file"
-                          multiple
-                          onChange={(e) => handleFileChange(folder, e)}
-                          className="w-full bg-[#151221] file:bg-violet-600 file:rounded-lg file:border-none text-white p-3 rounded-lg"
-                        />
+              <div className="space-y-4">
+                <div className="border-2 border-dashed border-gray-700 rounded-lg p-8 text-center">
+                  <div className="flex flex-col items-center gap-2">
+                    <Upload className="h-10 w-10 text-purple-500" />
+                    <p className="text-sm text-gray-400">
+                      Drag and drop your files here, or click to browse
+                    </p>
+                    <label htmlFor="file-upload" className="cursor-pointer">
+                      <div className="bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-md mt-2">
+                        Upload Files
                       </div>
-                    ))}
-                    <div className="mb-4 mt-2.5">
-                      <label className="block mb-2 text-gray-300 text-left text-sm font-semibold">
-                        Create New Folder
-                      </label>
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          value={folderName}
-                          onChange={(e) => setFolderName(e.target.value)}
-                          placeholder="Enter folder name"
-                          className="w-full bg-[#151221] text-white p-3 rounded-lg"
-                        />
-                        <button
-                          type="button"
-                          onClick={addFolder}
-                          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg"
-                        >
-                          Add
-                        </button>
-                      </div>
-                    </div>
+                      <input
+                        id="file-upload"
+                        type="file"
+                        multiple
+                        className="hidden"
+                        onChange={handleFileChange}
+                      />
+                    </label>
                   </div>
                 </div>
-              )}
+
+                {files.length > 0 && (
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    <h4 className="text-sm font-medium text-gray-300">
+                      Selected Files
+                    </h4>
+                    {files.map((file, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between bg-[#1e1c3a] p-3 rounded-md"
+                      >
+                        <div className="flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-purple-400" />
+                          <span className="text-sm">{file?.name}</span>
+                        </div>
+                        <button
+                          onClick={() => handleRemoveFile(file.name)}
+                          className="h-6 w-6 text-gray-400 hover:text-white hover:bg-[#2a2845] rounded-full flex items-center justify-center"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               {/* Reference Sources */}
               <div className="mb-6">
-                <h3 className="text-white text-lg font-semibold mb-2 text-left">Reference Sources (Optional)</h3>
+                <h3 className="text-white text-lg font-semibold mb-2 text-left">
+                  Reference Sources (Optional)
+                </h3>
                 <div className="flex gap-2 mb-2">
                   <input
                     type="text"
@@ -646,7 +677,7 @@ export default function OnBoarding() {
                     onChange={(e) => setSourceInput(e.target.value)}
                     placeholder="Enter website or reference URL"
                     className="flex-1 bg-[#151221] text-white p-3 rounded-lg"
-                    onKeyDown={(e) => e.key === 'Enter' && addSource()}
+                    onKeyDown={(e) => e.key === "Enter" && addSource()}
                   />
                   <button
                     type="button"
@@ -661,7 +692,10 @@ export default function OnBoarding() {
                 {sources.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-2">
                     {sources.map((source, index) => (
-                      <div key={index} className="bg-[#151221] text-white px-3 py-1 rounded-lg flex items-center">
+                      <div
+                        key={index}
+                        className="bg-[#151221] text-white px-3 py-1 rounded-lg flex items-center"
+                      >
                         {source}
                         <button
                           onClick={() => removeSource(index)}
@@ -714,8 +748,9 @@ export default function OnBoarding() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className={`w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-semibold ${loading ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
+                  className={`w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-semibold ${
+                    loading ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
                 >
                   {loading ? "Processing..." : "Submit"}
                 </button>
@@ -739,21 +774,36 @@ export default function OnBoarding() {
             {/* Left Notification Section */}
             <div className="flex-1 p-1 mr-10 ml-10">
               <AnimatedList delay={300} className="my-custom-class">
-                {notifications.slice(Math.ceil(notifications.length / 2)).map((notification, idx) => (
-                  <div key={idx} className="notification-item p-1 rounded-lg w-[250px] shadow-md">
+                {notifications
+                  .slice(Math.ceil(notifications.length / 2))
+                  .map((notification, idx) => (
                     <div
-                      className="flex items-center gap-1"
-                      style={{ backgroundColor: notification.color, borderRadius: '8px', padding: '8px 12px' }}
+                      key={idx}
+                      className="notification-item p-1 rounded-lg w-[250px] shadow-md"
                     >
-                      <span className="text-lg">{notification.icon}</span>
-                      <div>
-                        <h5 className="text-white text-sm font-semibold">{notification.name}</h5>
-                        <p className="text-white text-xs">{notification.description}</p>
-                        <span className="text-gray-300 text-xs">{notification.time}</span>
+                      <div
+                        className="flex items-center gap-1"
+                        style={{
+                          backgroundColor: notification.color,
+                          borderRadius: "8px",
+                          padding: "8px 12px",
+                        }}
+                      >
+                        <span className="text-lg">{notification.icon}</span>
+                        <div>
+                          <h5 className="text-white text-sm font-semibold">
+                            {notification.name}
+                          </h5>
+                          <p className="text-white text-xs">
+                            {notification.description}
+                          </p>
+                          <span className="text-gray-300 text-xs">
+                            {notification.time}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </AnimatedList>
             </div>
 
@@ -764,13 +814,22 @@ export default function OnBoarding() {
                   {/* Container for image */}
                   <div className="relative w-40 h-40">
                     <img
-                      src={agents.find(agent => agent.id === selectedAgents[0])?.image}
-                      alt={agents.find(agent => agent.id === selectedAgents[0])?.name}
+                      src={
+                        agents.find((agent) => agent.id === selectedAgents[0])
+                          ?.image
+                      }
+                      alt={
+                        agents.find((agent) => agent.id === selectedAgents[0])
+                          ?.name
+                      }
                       className="w-full h-full rounded-full object-cover"
                     />
                   </div>
                   <h4 className="font-semibold text-center text-xl mt-4">
-                    {agents.find(agent => agent.id === selectedAgents[0])?.name}
+                    {
+                      agents.find((agent) => agent.id === selectedAgents[0])
+                        ?.name
+                    }
                   </h4>
                 </div>
               )}
@@ -779,21 +838,36 @@ export default function OnBoarding() {
             {/* Right Notification Section */}
             <div className="flex-1 p-1 mr-10 ml-10">
               <AnimatedList delay={300} className="my-custom-class">
-                {notifications.slice(Math.ceil(notifications.length / 2)).map((notification, idx) => (
-                  <div key={idx} className="notification-item p-1 rounded-lg w-[250px] shadow-md">
+                {notifications
+                  .slice(Math.ceil(notifications.length / 2))
+                  .map((notification, idx) => (
                     <div
-                      className="flex items-center gap-1"
-                      style={{ backgroundColor: notification.color, borderRadius: '8px', padding: '8px 12px' }}
+                      key={idx}
+                      className="notification-item p-1 rounded-lg w-[250px] shadow-md"
                     >
-                      <span className="text-lg">{notification.icon}</span>
-                      <div>
-                        <h5 className="text-white text-sm font-semibold">{notification.name}</h5>
-                        <p className="text-white text-xs">{notification.description}</p>
-                        <span className="text-gray-300 text-xs">{notification.time}</span>
+                      <div
+                        className="flex items-center gap-1"
+                        style={{
+                          backgroundColor: notification.color,
+                          borderRadius: "8px",
+                          padding: "8px 12px",
+                        }}
+                      >
+                        <span className="text-lg">{notification.icon}</span>
+                        <div>
+                          <h5 className="text-white text-sm font-semibold">
+                            {notification.name}
+                          </h5>
+                          <p className="text-white text-xs">
+                            {notification.description}
+                          </p>
+                          <span className="text-gray-300 text-xs">
+                            {notification.time}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </AnimatedList>
             </div>
           </div>

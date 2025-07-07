@@ -5,21 +5,18 @@ type TLeadViewPageProps = {
   params: { leadId: string };
 };
 
-export default async function LeadViewPage ( { params }: TLeadViewPageProps ) {
-  const { leadId } = params;
+export default async function LeadViewPage(leadId: string) {
   let lead = null;
   let pageTitle = "Create New Lead";
 
-  if ( leadId !== "new" )
-  {
-    const res = await fetch( `${ process.env.NEXT_PUBLIC_API_URL }/api/leads/${ leadId }` );
-    if ( !res.ok )
-    {
+  if (leadId !== "new") {
+    const res = await fetch(`http://localhost:3001/api/lead/${leadId?.leadId}`);
+    if (!res.ok) {
       notFound(); // Redirects to 404 if lead not found
     }
     lead = await res.json();
-    pageTitle = "Edit Lead";
+    pageTitle = "Update Lead";
   }
 
-  return <LeadForm initialData={lead} pageTitle={pageTitle} />;
+  return <LeadForm initialData={lead.lead} pageTitle={pageTitle} />;
 }

@@ -124,7 +124,7 @@ export const ragChat = new RAGChat({
          - Keep answers under 150 words unless technical depth is required.
     `;
   },
-  // debug: true,
+  debug: true,
 });
 
 // Helper function to extract key terms from a question

@@ -2,7 +2,7 @@
 
 import { searchParams } from '@/lib/searchparams';
 import { useQueryState } from 'nuqs';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 export const CATEGORY_OPTIONS = [
   { value: 'Electronics', label: 'Electronics' },
@@ -15,6 +15,12 @@ export const CATEGORY_OPTIONS = [
   { value: 'Beauty Products', label: 'Beauty Products' }
 ];
 export function useProductTableFilters() {
+
+  const [scheduledFilter, setScheduledFilter] = useQueryState(
+  'scheduled',
+  searchParams.scheduledFilter.withOptions({ shallow: false }).withDefault(false)
+);
+
   const [searchQuery, setSearchQuery] = useQueryState(
     'q',
     searchParams.q
@@ -33,19 +39,23 @@ export function useProductTableFilters() {
   );
 
   const resetFilters = useCallback(() => {
-    setSearchQuery(null);
-    setCategoriesFilter(null);
+  setSearchQuery(null);
+  setCategoriesFilter(null);
+  setScheduledFilter(null);
+  setPage(1);
+}, [setSearchQuery, setCategoriesFilter, setScheduledFilter, setPage]);
 
-    setPage(1);
-  }, [setSearchQuery, setCategoriesFilter, setPage]);
 
   const isAnyFilterActive = useMemo(() => {
-    return !!searchQuery || !!categoriesFilter;
-  }, [searchQuery, categoriesFilter]);
+  return !!searchQuery || !!categoriesFilter || scheduledFilter;
+}, [searchQuery, categoriesFilter, scheduledFilter]);
+
 
   return {
     searchQuery,
     setSearchQuery,
+    scheduledFilter,
+    setScheduledFilter,
     page,
     setPage,
     resetFilters,

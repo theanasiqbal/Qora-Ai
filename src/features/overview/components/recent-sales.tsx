@@ -1,101 +1,52 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Card,
   CardHeader,
   CardContent,
   CardTitle,
-  CardDescription
+  CardDescription,
 } from '@/components/ui/card';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { prisma } from '@/lib/prisma';
+import Link from 'next/link'; // Importing Link from next/link
 
-export function RecentSales() {
+export async function RecentSales() {
+  const leads = await prisma.lead.findMany({
+    orderBy: {
+      createdAt: 'desc',
+    },
+    take: 5,
+  });
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Recent Sales</CardTitle>
-        <CardDescription>You made 265 sales this month.</CardDescription>
+        <CardTitle>Recent Leads</CardTitle>
+        <CardDescription>You've received {leads.length} new leads.</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className='space-y-8'>
-          <div className='flex items-center'>
-            <Avatar className='h-9 w-9'>
-              <AvatarImage
-                src='https://api.slingacademy.com/public/sample-users/1.png'
-                alt='Avatar'
-              />
-              <AvatarFallback>OM</AvatarFallback>
-            </Avatar>
-            <div className='ml-4 space-y-1'>
-              <p className='text-sm font-medium leading-none'>Olivia Martin</p>
-              <p className='text-sm text-muted-foreground'>
-                olivia.martin@email.com
-              </p>
-            </div>
-            <div className='ml-auto font-medium'>+$1,999.00</div>
-          </div>
-          <div className='flex items-center'>
-            <Avatar className='flex h-9 w-9 items-center justify-center space-y-0 border'>
-              <AvatarImage
-                src='https://api.slingacademy.com/public/sample-users/2.png'
-                alt='Avatar'
-              />
-              <AvatarFallback>JL</AvatarFallback>
-            </Avatar>
-            <div className='ml-4 space-y-1'>
-              <p className='text-sm font-medium leading-none'>Jackson Lee</p>
-              <p className='text-sm text-muted-foreground'>
-                jackson.lee@email.com
-              </p>
-            </div>
-            <div className='ml-auto font-medium'>+$39.00</div>
-          </div>
-          <div className='flex items-center'>
-            <Avatar className='h-9 w-9'>
-              <AvatarImage
-                src='https://api.slingacademy.com/public/sample-users/3.png'
-                alt='Avatar'
-              />
-              <AvatarFallback>IN</AvatarFallback>
-            </Avatar>
-            <div className='ml-4 space-y-1'>
-              <p className='text-sm font-medium leading-none'>
-                Isabella Nguyen
-              </p>
-              <p className='text-sm text-muted-foreground'>
-                isabella.nguyen@email.com
-              </p>
-            </div>
-            <div className='ml-auto font-medium'>+$299.00</div>
-          </div>
-          <div className='flex items-center'>
-            <Avatar className='h-9 w-9'>
-              <AvatarImage
-                src='https://api.slingacademy.com/public/sample-users/4.png'
-                alt='Avatar'
-              />
-              <AvatarFallback>WK</AvatarFallback>
-            </Avatar>
-            <div className='ml-4 space-y-1'>
-              <p className='text-sm font-medium leading-none'>William Kim</p>
-              <p className='text-sm text-muted-foreground'>will@email.com</p>
-            </div>
-            <div className='ml-auto font-medium'>+$99.00</div>
-          </div>
-          <div className='flex items-center'>
-            <Avatar className='h-9 w-9'>
-              <AvatarImage
-                src='https://api.slingacademy.com/public/sample-users/5.png'
-                alt='Avatar'
-              />
-              <AvatarFallback>SD</AvatarFallback>
-            </Avatar>
-            <div className='ml-4 space-y-1'>
-              <p className='text-sm font-medium leading-none'>Sofia Davis</p>
-              <p className='text-sm text-muted-foreground'>
-                sofia.davis@email.com
-              </p>
-            </div>
-            <div className='ml-auto font-medium'>+$39.00</div>
-          </div>
+        <div className='space-y-6'>
+          {leads.map((lead) => {
+            const initials = lead.name
+              .split(' ')
+              .map((part) => part[0])
+              .join('')
+              .toUpperCase();
+
+            return (
+              <Link key={lead.id} href={`/dashboard/lead/${lead.id}`} passHref>
+                {/* Wrapping the whole div with Link */}
+                <div className='flex items-center hover:bg-purple-600/50 hover:cursor-pointer p-2 rounded-md'>
+                  <Avatar className='h-9 w-9'>
+                    <AvatarFallback>{initials}</AvatarFallback>
+                  </Avatar>
+                  <div className='ml-4 space-y-1'>
+                    <p className='text-sm font-medium leading-none'>{lead.name}</p>
+                    <p className='text-sm text-muted-foreground'>{lead.email}</p>
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </CardContent>
     </Card>

@@ -1,5 +1,11 @@
 import { cn } from "@/lib/utils";
 import { Bot, User, Copy, CopyCheck, Share2, Mail } from "lucide-react";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@radix-ui/react-accordion";
 import { marked } from "marked";
 import { useState } from "react";
 import "./Message.css";
@@ -29,12 +35,25 @@ export const Message = ({
     gfm: true,
   });
 
-  const formattedContent = content
-    ? `<div>${marked.parse(content).trim()}</div>` // Wrap content to preserve spacing
+  function extractReasoningAndResponse(content: string) {
+    const match = content.match(/<think>([\s\S]*?)<\/think>([\s\S]*)/);
+    if (!match)
+      return { reasoning: null, response: marked.parse(content).trim() };
+
+    return {
+      reasoning: match[1].trim(),
+      response: marked.parse(match[2].trim()).trim(),
+    };
+  }
+
+  const { reasoning, response } = extractReasoningAndResponse(content);
+
+  const formattedContent = response
+    ? `<div>${response}</div>` // Wrap content to preserve spacing
     : null;
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(content);
+    navigator.clipboard.writeText(response);
     setCopied(true);
     setTimeout(() => setCopied(false), 5000);
   };
@@ -69,10 +88,27 @@ export const Message = ({
             <span className="text-sm font-semibold">Oliver</span>
           </div>
 
+          {reasoning && (
+            <Accordion
+              type="single"
+              collapsible
+              className="ml-8 mb-4 rounded-lg"
+            >
+              <AccordionItem value="reasoning">
+                <AccordionTrigger className="px-4 py-2 text-left font-medium bg-gray-800 hover:bg-gray-700 rounded-t-lg">
+                  🧠 Reasoning
+                </AccordionTrigger>
+                <AccordionContent className="px-4 py-2 bg-gray-900 text-sm whitespace-pre-line border-t">
+                  {reasoning}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          )}
+
           {/* Formatted Markdown Output */}
           <div
             className="text-base leading-relaxed ml-8"
-            dangerouslySetInnerHTML={{ __html: formattedContent }}
+            dangerouslySetInnerHTML={{ __html: response }}
           />
 
           {/* Message Actions */}
@@ -121,16 +157,16 @@ export const Message = ({
               className="text-gray-400 size-4 cursor-pointer hover:text-white"
               onClick={() => {
                 if (salesMagnet) {
-                  onChatBotShare(formattedContent);
+                  onChatBotShare(response);
                 } else {
-                  onShareClick(formattedContent);
+                  onShareClick(response);
                 }
               }}
             />
             {!salesMagnet && (
               <Mail
                 className="text-gray-400 size-4 cursor-pointer hover:text-white"
-                onClick={() => onMailClick(formattedContent)}
+                onClick={() => onMailClick(response)}
               />
             )}
           </div>

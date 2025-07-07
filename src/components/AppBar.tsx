@@ -119,6 +119,13 @@ const AppBar = () => {
               </Link>
               <Link
                 onClick={() => setDropdownOpen(false)}
+                href="/dashboard/overview"
+                className="block text-sm mt-3 hover:text-purple-300"
+              >
+                Dashboard
+              </Link>
+              <Link
+                onClick={() => setDropdownOpen(false)}
                 href="/settings"
                 className="block text-sm mt-3 hover:text-purple-300"
               >

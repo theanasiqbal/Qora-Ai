@@ -14,40 +14,71 @@ datasource db {
 }
 
 model User {
-  id                String   @id @default(uuid()) // Unique user ID
-  userId            String   @unique // Clerk or authentication provider user ID
-  name              String
-  email             String   @unique
-  location          String?
-  type             String?
-  website          String?
-  sources          String[] @default([]) // Array of strings for sources
-  subscriptionStatus String  @default("trial") // Subscription status (e.g., "active", "trial", "expired")
-  createdAt        DateTime @default(now()) // Auto timestamp for creation
-  updatedAt        DateTime @updatedAt      // Auto timestamp for updates
-  bio              String?
-  description      String?
-  profileUrl       String?
+  id                 String   @id @default(uuid()) // Unique user ID
+  userId             String   @unique // Clerk or authentication provider user ID
+  name               String
+  email              String   @unique
+  location           String?
+  type               String?
+  website            String?
+  sources            String[] @default([]) // Array of strings for sources
+  subscriptionStatus String   @default("trial") // Subscription status (e.g., "active", "trial", "expired")
+  createdAt          DateTime @default(now()) // Auto timestamp for creation
+  updatedAt          DateTime @updatedAt // Auto timestamp for updates
+  bio                String?
+  description        String?
+  profileUrl         String?
 }
 
 model Feed {
-  id                String   @id @default(uuid()) 
-  userId            String
-  content           String
-  prompt            String?
-  createdAt         DateTime     @default(now())
-  published         Boolean      @default(false)  
-  publishedOn       DateTime?    
-  impressions       Int      @default(0)             
-  leads             Int?
-  platform          String?
+  id          String    @id @default(uuid())
+  userId      String
+  content     String
+  prompt      String?
+  createdAt   DateTime  @default(now())
+  published   Boolean   @default(false)
+  publishedOn DateTime?
+  scheduledOn DateTime?
+  impressions Int       @default(0)
+  leads       Int?
+  platform    String?
+  campaign    String?
+  leadsList   Lead[]    
 }
 
 model Lead {
-  id               String   @id @default(uuid()) 
-  name             String
-  email            String
-  feedId           String
-  userId           String
+  id              String   @id @default(uuid())
+  name            String
+  email           String
+  feedId          String?
+  userId          String?
+  status          String?
+  createdAt       DateTime @default(now())
+  notes           String?
+  assignedAgentId String?
+  type            String?
+  whatsappStatus  Boolean?
+  mailStatus      Boolean?
+  campaignId      String?
+  campaignAssigned  Boolean?
+  feed            Feed?     @relation(fields: [feedId], references: [id])
+}
+
+model Token {
+  appName         String?  
+  accessToken     String?
+  pageId          Int     @id @unique
+  expiresAt       DateTime?
+}
+
+model Campaign {
+  id                 String   @id @default(uuid())
+  name            String
+  description     String?
+  active          Boolean  @default(false)
+  userId          String
+  createdAt   DateTime @default(now())
+  template        String?
+  platform        String?
 }
 

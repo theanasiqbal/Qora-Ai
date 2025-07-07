@@ -2,104 +2,82 @@ import { ChatWrapper } from "@/components/ChatWrapper";
 import { ragChat } from "@/lib/rag-chat";
 import { redis } from "@/lib/redis";
 import { cookies } from "next/headers";
-import path from 'path';
-import fs from 'fs/promises';
+import path from "path";
+import os from "os";
+import fs from "fs/promises";
+import { currentUser } from "@clerk/nextjs/server";
+import { downloadBlobToBuffer, listPDFFiles } from "@/lib/azure";
 
 interface PageProps {
-  params: { url: string | string[] | undefined; };
+  params: { url: string | string[] | undefined };
 }
 
 const Page = async ({ params }: PageProps) => {
-  const company = cookies().get("company")?.value;
+  const user = await currentUser();
+  console.log("user", user)
 
-  // Parse the JSON if it exists
-  let companyEmail = "Unknown";
-  let companyName = "Unknown";
+  let companyName = user?.id;
+
+  // if (user?.firstName && user?.lastName) {
+  //   companyName = `${user.firstName} ${user.lastName}`;
+  // } else if (user?.firstName) {
+  //   companyName = user.firstName;
+  // } else if (user?.lastName) {
+  //   companyName = user.lastName;
+  // } else {
+  //   companyName = "Unknown User";
+  // }
+
+  async function processAllFiles() {
+  const prefix = `${companyName}`;
 
   try {
-    if (company) {
-      const companyData = JSON.parse(company);
-      companyName = companyData.name || "Unknown";
-      companyEmail = companyData.email || "Unknown";
-    }
-  } catch (error) {
-    console.error("Error parsing cookies:", error);
-  }
-
-  // Get the base directory for the company's data
-  const companyDirPath = path.join(process.cwd(), "public", "data", companyName);
-
-  // Create a function to recursively process all files in the company directory
-  async function processAllFiles() {
-    try {
-      // Read all folders in the company directory
-      const folders = await fs.readdir(companyDirPath);
-
-      for (const folder of folders) {
-        const folderPath = path.join(companyDirPath, folder);
-        const folderStat = await fs.stat(folderPath);
-
-        // Skip if not a directory
-        if (!folderStat.isDirectory()) continue;
-
-        // Read all files in the folder
-        const files = await fs.readdir(folderPath);
-
-        for (const file of files) {
-          // Only process PDF files
-          if (!file.toLowerCase().endsWith('.pdf')) continue;
-
-          const filePath = path.join(folderPath, file);
-
-          // Check if already indexed
-          const isAlreadyIndexed = await redis.sismember(companyName, filePath);
-
-          if (!isAlreadyIndexed) {
-            // Add the PDF context
-            await ragChat.context.add({
-              type: "pdf",
-              fileSource: filePath,
-            });
-
-            // Mark as indexed in Redis
-            await redis.sadd(companyName, filePath);
-            console.log(`Indexed: ${filePath}`);
-          }
-        }
+    const files = await listPDFFiles(prefix);
+    console.log("files", files)
+    for (const { name, url } of files) {
+      const redisKey = companyName || "Unknown";
+      const isAlreadyIndexed = await redis.sismember(redisKey, name);
+      if (isAlreadyIndexed) {
+        console.log(`⏩ Skipping already indexed file: ${name}`);
+        continue;
       }
-    } catch (error) {
-      console.error("Error processing files:", error);
-    }
-  }
 
-  // Process all files when the page loads
+      // Download blob to buffer
+      const fileBuffer = await downloadBlobToBuffer(name);
+
+      // Write buffer to temporary file
+      const tempFilePath = path.join(os.tmpdir(), path.basename(name)); 
+      await fs.writeFile(tempFilePath, fileBuffer);
+
+      // Add context from file path
+      await ragChat.context.add({
+        type: "pdf",
+        fileSource: tempFilePath, 
+      });
+
+      await redis.sadd(redisKey, name);
+      console.log(`✅ Indexed (pdf): ${name}`);
+
+      // Optionally clean up temp file
+      await fs.unlink(tempFilePath);
+    }
+  } catch (err) {
+    console.error("❌ Error processing Azure files:", err);
+  }
+}
+
   await processAllFiles();
 
-  // For the current selected item (still keeping this for the chat session)
-  const selectedItem = cookies().get("selectedItem")?.value;
-  let folderName = "Unknown";
-
-  try {
-    if (selectedItem) {
-      const selectedItemData = JSON.parse(selectedItem);
-      folderName = selectedItemData.folder || "Unknown";
-    }
-  } catch (error) {
-    console.error("Error parsing selected item:", error);
-  }
-  let chatId = cookies().get('chatId')?.value; // Retrieve chatId from cookie
-
-  if (!chatId) {
-    chatId = "Unknown"
-  }
-
-  const sessionId = `${companyName}-${folderName}-${chatId}`.replace(/\//g, "");
+  let chatId = cookies().get("chatId")?.value || "Unknown";
+  const sessionId = `${companyName}-${chatId}`.replace(/\//g, "");
   const initialMessages = await ragChat.history.getMessages({
     amount: 10,
     sessionId,
   });
 
-  return <ChatWrapper sessionId={sessionId} initialMessages={initialMessages} />;
+  return (
+    <ChatWrapper sessionId={sessionId} initialMessages={initialMessages} />
+  );
 };
 
 export default Page;

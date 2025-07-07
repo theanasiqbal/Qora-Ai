@@ -3,39 +3,29 @@ import { Lead } from '@/constants/data';
 import { ColumnDef } from '@tanstack/react-table';
 import Image from 'next/image';
 import { CellAction } from './cell-action';
+import AssignLeads from './assign-leads';
 
 export const columns: ColumnDef<Lead>[] = [
-  // {
-  //   accessorKey: 'photo_url',
-  //   header: 'IMAGE',
-  //   cell: ({ row }) => {
-  //     return (
-  //       <div className='relative aspect-square'>
-  //         <Image
-  //           src={row.getValue('photo_url')}
-  //           alt={row.getValue('name')}
-  //           fill
-  //           className='rounded-lg'
-  //         />
-  //       </div>
-  //     );
-  //   }
-  // },
   {
     accessorKey: 'name',
-    header: 'Name'
+    header: 'NAME'
   },
   {
     accessorKey: 'email',
-    header: 'Email'
+    header: 'EMAIL'
   },
   {
-    accessorKey: 'phone',
-    header: 'Phone'
+    accessorKey: 'feedId',
+    header: 'FEED'
   },
   {
     accessorKey: 'status',
-    header: 'status'
+    header: 'STATUS'
+  },
+  {
+    header: 'Assign to',
+    id: 'assign',
+    cell: ({row}) => <AssignLeads leadData={row.original}/>
   },
 
   {
