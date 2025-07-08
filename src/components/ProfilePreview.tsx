@@ -15,7 +15,7 @@ interface ProfileData {
 // Define props interface
 interface ProfilePreviewProps {
   profileData?: ProfileData; // Optional profile data
-  userId: string;
+  userId?: string;
   salesMagnet?: boolean;
 }
 

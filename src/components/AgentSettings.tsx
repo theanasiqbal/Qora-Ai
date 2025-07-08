@@ -34,7 +34,7 @@ export default function AgentSettings() {
           <h2 className="text-white text-2xl font-bold mb-6">Craft Your AI Persona</h2>
           <Carousel
             stop={true}
-            setAgent={(selectedAgent) => {
+            setAgent={(selectedAgent: any) => {
               setAgent(selectedAgent);
               setFormData({ ...formData, agentName: selectedAgent });
               setShowForm(true);

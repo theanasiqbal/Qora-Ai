@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
         }
     })
 
-    const fb_token = token.accessToken
+    const fb_token = token?.accessToken
 
     
 

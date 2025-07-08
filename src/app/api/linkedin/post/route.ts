@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     });
 
 
-    const linkedinToken = token.accessToken
+    const linkedinToken = token?.accessToken
     if (!linkedinToken) {
       return NextResponse.json({ error: "LinkedIn token not found" }, { status: 401 });
     }

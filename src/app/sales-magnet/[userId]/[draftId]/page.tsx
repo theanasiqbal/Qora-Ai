@@ -15,6 +15,10 @@ const SalesMagnetPage = async({
   params: { userId?: string; draftId?: string };
 }) => {
   const { userId, draftId } = params;
+  if (!userId || !draftId) {
+  return <div>Invalid or missing route parameters.</div>;
+}
+
    if (draftId) {
     await prisma.feed.update({
       where: { id: draftId },

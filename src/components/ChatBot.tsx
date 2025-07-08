@@ -30,7 +30,11 @@ const ChatBot = ({
     initialMessages,
   });
 
-  const [feed, setFeed] = useState(null);
+  type Feed = {
+  prompt: string;
+};
+
+  const [feed, setFeed] = useState<Feed | null>(null);
   const [showPopup, setShowPopup] = useState(false);
   const [isDetailsSubmitted, setIsDetailsSubmitted] = useState(false);
   const [hasSubmittedPrompt, setHasSubmittedPrompt] = useState(false);

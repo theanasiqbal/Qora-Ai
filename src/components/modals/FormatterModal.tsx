@@ -4,14 +4,20 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Linkedin, Facebook, MessageCircle, X } from "lucide-react";
 import TiptapEditor from "../TipTapEditor";
 
+interface FormatterModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  initialContent: string;
+}
+
 const FormatterModal = ({
   isOpen,
   onClose,
   initialContent,
-}) => {
+}: FormatterModalProps) => {
   const [formattedContent, setFormattedContent] = useState("");
   const [contentTitle, setContentTitle] = useState("");
-  const modalRef = useRef(null);
+  const modalRef = useRef<HTMLDivElement | null>(null);
 
   // Update formattedContent whenever initialContent changes
   useEffect(() => {
@@ -20,31 +26,34 @@ const FormatterModal = ({
     }
   }, [initialContent]);
 
-  // Handle click outside to close modal
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (modalRef.current && !modalRef.current.contains(event.target)) {
-        onClose();
-      }
-    };
 
-    // Handle escape key to close modal
-    const handleEscKey = (event) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      document.addEventListener("keydown", handleEscKey);
+useEffect(() => {
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      modalRef.current &&
+      !modalRef.current.contains(event.target as Node)
+    ) {
+      onClose();
     }
+  };
 
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleEscKey);
-    };
-  }, [isOpen, onClose]);
+  const handleEscKey = (event: KeyboardEvent) => {
+    if (event.key === "Escape") {
+      onClose();
+    }
+  };
+
+  if (isOpen) {
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscKey);
+  }
+
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+    document.removeEventListener("keydown", handleEscKey);
+  };
+}, [isOpen, onClose]);
+
 
   const copyFormattedText = async () => {
     // Include the title
@@ -82,11 +91,11 @@ const FormatterModal = ({
     navigator.clipboard.writeText(contentWithTitle);
   };
 
-  const handlePostClick = (platform) => {
+  const handlePostClick = (platform: string) => {
     performShare(platform);
   };
 
-  const performShare = async (platform) => {
+  const performShare = async (platform: string) => {
     let shareUrl = "";
 
     switch (platform) {

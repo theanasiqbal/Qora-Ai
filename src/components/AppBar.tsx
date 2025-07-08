@@ -12,7 +12,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 const AppBar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const { isSignedIn, user } = useUser(); // Get authenticated user
   const { signOut } = useClerk(); // Clerk sign-out function
   const router = useRouter();
@@ -22,16 +22,16 @@ const AppBar = () => {
 
   // Log user info after signing in
   useEffect(() => {
-    if (isSignedIn && user) {
-      const createdAt = new Date(user?.createdAt);
-      const now = new Date();
+  if (isSignedIn && user) {
+    const createdAt = user?.createdAt ? new Date(user.createdAt) : null;
+    const now = new Date();
 
-      // If user signed up in the last 30 seconds, assume it's their first login
-      if ((now.getTime() - createdAt.getTime()) / 1000 < 30) {
-        router.push("/onboarding");
-      }
+    if (createdAt && (now.getTime() - createdAt.getTime()) / 1000 < 30) {
+      router.push("/onboarding");
     }
-  }, [isSignedIn, user]);
+  }
+}, [isSignedIn, user]);
+
 
   // Handle outside click for dropdown
   useEffect(() => {

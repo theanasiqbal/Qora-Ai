@@ -26,7 +26,7 @@ export default function AssignCampaignModal() {
   const handleAssign = async () => {
     if (!selectedCampaignId) return;
     try {
-      await fetch(`http://localhost:4000/lead/assign-campaign/${selectedCampaignId}`, {
+      await fetch(`/api/assign-campaign/${selectedCampaignId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
       });

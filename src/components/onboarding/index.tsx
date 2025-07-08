@@ -13,12 +13,12 @@ import toast from "react-hot-toast";
 import { FileText, Upload, X } from "lucide-react";
 
 export default function OnBoarding() {
-  const [selectedAgents, setSelectedAgents] = useState([]);
+  const [selectedAgents, setSelectedAgents] = useState<string[]>([]);
   const [step, setStep] = useState(1);
   const { user } = useUser(); // Get authenticated user
   const router = useRouter();
   const [confetti, setConfetti] = useState(false);
-  const [sources, setSources] = useState([]);
+  const [sources, setSources] = useState<string[]>([]);
   const [sourceInput, setSourceInput] = useState("");
   const [showSidebar, setShowSidebar] = useState(false);
   const [notifications, setNotifications] = useState([
@@ -139,17 +139,19 @@ export default function OnBoarding() {
     hubspot: false,
   });
 
-  const [files, setFiles] = useState([]);
+  const [files, setFiles] = useState<File[]>([]);
   const [fileUploadProgress, setFileUploadProgress] = useState(0);
   const [loading, setLoading] = useState(false);
 
   // Handle text inputs
-  const handleChange = (e) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   // Handle agent selection
-  const toggleAgent = (agentId) => {
+  const toggleAgent = (agentId: string) => {
     if (selectedAgents.includes(agentId)) {
       setSelectedAgents([]);
     } else {
@@ -177,13 +179,15 @@ export default function OnBoarding() {
   };
 
   // Handle removing sources
-  const removeSource = (index) => {
+  const removeSource = (index: number) => {
     setSources(sources.filter((_, i) => i !== index));
   };
 
   // Function to handle file uploads
-  const handleFileChange = (event) => {
-    const selectedFiles = Array.from(event.target.files);
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = event.target.files;
+    if (!fileList) return;
+    const selectedFiles = Array.from(fileList);
     setFiles(selectedFiles);
     setFileUploadProgress((selectedFiles.length / 10) * 100); // adjust based on assumption
   };
@@ -191,7 +195,7 @@ export default function OnBoarding() {
   const [popupVisible, setPopupVisible] = useState(false);
 
   // Handle form submission
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
@@ -285,7 +289,7 @@ export default function OnBoarding() {
   };
 
   // Move to next step
-  const nextStep = (e) => {
+  const nextStep = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (step === 1) {

@@ -2,7 +2,7 @@ import { customerRagChat } from "@/lib/customer-rag-chat";
 import { searchSimilarDocs } from "@/lib/vector-context";
 import { aiUseChatAdapter } from "@upstash/rag-chat/nextjs";
 import { streamText } from "ai";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createOpenAI } from "@ai-sdk/openai";
 
 const together = createOpenAI({
@@ -10,15 +10,15 @@ const together = createOpenAI({
   baseURL: "https://api.together.xyz/v1",
 });
 
-export const POST = async (req) => {
+export const POST = async (req: NextRequest) => {
   let { messages, sessionId } = await req.json();
   const lastMessage = messages[messages.length - 1].content;
 
   const context = await searchSimilarDocs(lastMessage, 5);
 
   const serverMessages = messages
-    .filter((msg) => msg.role !== "error")
-    .map((msg) => ({
+    .filter((msg: any) => msg.role !== "error")
+    .map((msg: any) => ({
       role: msg.role,
       content: msg.content,
     }));

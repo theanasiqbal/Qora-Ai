@@ -16,15 +16,15 @@ export default function LeadModal({
   setIsDetailsSubmitted: (value: boolean) => void
   setHasSubmittedPrompt: (value: boolean) => void
   handleSubmit: any
-  feedId: string
-  userId: string
+  feedId: string | null
+  userId: string | null | undefined
 }) {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [error, setError] = useState("") // Track validation errors
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleFormSubmit = async (e) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     if (!name.trim() || !email.trim()) {
       setError("Please fill in both Name and Email.")
       return
@@ -42,7 +42,7 @@ export default function LeadModal({
       handleSubmit(e)
       setHasSubmittedPrompt(true)
     } catch (error) {
-      toast.error("Error saving details:", error)
+      toast.error("Error saving details")
       setError("Something went wrong. Please try again.")
     } finally {
       setIsSubmitting(false)

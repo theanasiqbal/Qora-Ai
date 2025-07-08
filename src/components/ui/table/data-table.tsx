@@ -35,7 +35,10 @@ import { useRouter } from "next/navigation";
 import { parseAsInteger, useQueryState } from "nuqs";
 import { useEffect } from "react";
 
-interface DataTableProps<TData, TValue> {
+interface BaseRow {
+  id: string | number;
+}
+interface DataTableProps<TData extends BaseRow, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   totalItems: number;
@@ -44,7 +47,7 @@ interface DataTableProps<TData, TValue> {
   feed?: boolean;
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends BaseRow, TValue>({
   columns,
   data,
   totalItems,

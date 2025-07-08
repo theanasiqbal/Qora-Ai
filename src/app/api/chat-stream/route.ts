@@ -110,7 +110,6 @@ export const POST = async (req: NextRequest) => {
     message: {
       role: "user",
       content: lastMessage,
-      id: Date.now().toString(),
     },
   });
 
@@ -145,8 +144,8 @@ export const POST = async (req: NextRequest) => {
   const context = await searchSimilarDocs(lastMessage, 5);
 
   const serverMessages = messages
-    .filter((msg) => msg.role !== "error")
-    .map((msg) => ({
+    .filter((msg : any) => msg.role !== "error")
+    .map((msg : any) => ({
       role: msg.role,
       content: msg.content,
     }));
@@ -205,7 +204,6 @@ Response Workflow:
         message: {
           role: "assistant",
           content: text,
-          id: Date.now().toString(),
         },
       });
     },

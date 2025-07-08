@@ -15,13 +15,26 @@ import { useUser } from "@clerk/nextjs";
 import toast from "react-hot-toast";
 import LinkedInModal from "./linkedIn/LinkedInModal";
 
+interface FormattingPanelProps {
+  isOpen: boolean;
+  onClose: () => void;
+  initialContent: string;
+  isMailMode?: boolean;
+  salesMagnet?: boolean;
+}
+
+interface Campaign {
+  id: string;
+  name: string;
+}
+
 const FormattingPanel = ({
   isOpen,
   onClose,
   initialContent,
   isMailMode = false,
   salesMagnet = false,
-}) => {
+}: FormattingPanelProps) => {
   const [formattedContent, setFormattedContent] = useState("");
   const [contentTitle, setContentTitle] = useState("");
   const [isSalesMagnetEnabled, setIsSalesMagnetEnabled] = useState(false);
@@ -29,11 +42,11 @@ const FormattingPanel = ({
   const [emailSubject, setEmailSubject] = useState("");
   const [showPromptPopup, setShowPromptPopup] = useState(false);
   const [promptValue, setPromptValue] = useState("");
-  const [pendingSharePlatform, setPendingSharePlatform] = useState(null);
+  const [pendingSharePlatform, setPendingSharePlatform] = useState<string | null>(null);
   const [scheduleLater, setScheduleLater] = useState(false);
-  const [scheduledAt, setScheduledAt] = useState();
+  const [scheduledAt, setScheduledAt] = useState<string>();
   const [isLinkedInModalOpen, setLinkedInModalOpen] = useState(false);
-  const [campaigns, setCampaigns] = useState([]);
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [selectedCampaignName, setSelectedCampaignName] = useState<
     string | null
   >(null);
@@ -96,7 +109,7 @@ const FormattingPanel = ({
     navigator.clipboard.writeText(contentWithTitle);
   };
 
-  const handlePostClick = (platform) => {
+  const handlePostClick = (platform: string) => {
     if (isSalesMagnetEnabled) {
       setPendingSharePlatform(platform);
       setShowPromptPopup(true);
@@ -106,7 +119,7 @@ const FormattingPanel = ({
     }
   };
 
-  const performShare = async (platform) => {
+  const performShare = async (platform: string) => {
     let shareUrl = "";
     let salesMagnetLink = "";
     let contentWithTitle = "";
@@ -257,7 +270,7 @@ const FormattingPanel = ({
         toast.success("Scheduled successfully!");
         setShowPromptPopup(false);
         setPromptValue("");
-        setScheduledAt(null);
+        setScheduledAt(undefined);
         setScheduleLater(false);
       } else {
         toast.error(data.error || "Something went wrong.");
@@ -498,7 +511,7 @@ const FormattingPanel = ({
                 onClick={() => {
                   setScheduleLater(false);
                   setShowPromptPopup(false);
-                  setScheduledAt(null);
+                  setScheduledAt(undefined);
                 }}
                 className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
               >
@@ -577,7 +590,7 @@ const FormattingPanel = ({
                     onClick={() => {
                       setScheduleLater(false);
                       setShowPromptPopup(false);
-                      setScheduledAt(null);
+                      setScheduledAt(undefined);
                     }}
                     className="px-5 py-2.5 bg-[#2d2844] hover:bg-[#3a3456] text-white rounded-lg transition-colors duration-200"
                   >

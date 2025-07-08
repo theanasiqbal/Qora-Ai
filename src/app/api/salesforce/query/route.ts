@@ -4,7 +4,7 @@ import path from "path";
 import { cookies } from "next/headers";
 import puppeteer from "puppeteer";
 
-export async function POST(request) {
+export async function POST() {
   try {
     // Get company name from cookies
     const cookieStore = cookies();
@@ -112,7 +112,7 @@ export async function POST(request) {
   } catch (error) {
     console.error("Error generating PDF:", error);
     return NextResponse.json(
-      { message: "Error creating PDF", error: error.message },
+      { message: "Error creating PDF" },
       { status: 500 }
     );
   }

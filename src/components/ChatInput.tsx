@@ -52,7 +52,8 @@ export const ChatInput = ({
       }
 
       if (hasSubmittedPrompt) return;
-      setHasSubmittedPrompt(true);
+      setHasSubmittedPrompt?.(true);
+
     }
 
     handleSubmit(e);

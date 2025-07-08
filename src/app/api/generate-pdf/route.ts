@@ -60,7 +60,7 @@ export async function POST(request: Request) {
 
     // Launch browser with explicit options
     const browser = await puppeteer.launch({
-      headless: 'new',
+      headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
 

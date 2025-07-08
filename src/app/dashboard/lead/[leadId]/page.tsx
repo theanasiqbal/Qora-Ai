@@ -7,16 +7,14 @@ export const metadata = {
   title: 'Dashboard : Lead View'
 };
 
-type PageProps = { params: Promise<{ leadId: string }> };
+type PageProps = { params: { leadId: string } };
 
-export default async function Page(props: PageProps) {
-  const params = await props.params;
-  
+export default function Page({ params }: PageProps) {
   return (
     <PageContainer scrollable>
       <div className='flex-1 space-y-4'>
         <Suspense fallback={<FormCardSkeleton />}>
-                  <LeadViewPage leadId={params.leadId} />
+          <LeadViewPage leadId={params.leadId} />
         </Suspense>
       </div>
     </PageContainer>

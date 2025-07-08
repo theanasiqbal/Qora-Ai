@@ -289,7 +289,9 @@ export default function CampaignSettings() {
                 <td className="p-2">{c.name}</td>
                 <td className="p-2">{c.description}</td>
                 <td className="p-2">
-                  {c?.platform?.charAt(0).toUpperCase() + c?.platform?.slice(1)}
+                  {c?.platform
+    ? c.platform.charAt(0).toUpperCase() + c.platform.slice(1)
+    : "N/A"}
                 </td>
                 <td className="p-2 text-center">
                   <Switch

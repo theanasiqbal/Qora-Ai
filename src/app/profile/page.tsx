@@ -15,7 +15,7 @@ export default function ProfilePage() {
     description: ""
   });
 
-  const [profileImage, setProfileImage] = useState(null);
+  const [profileImage, setProfileImage] = useState<File | null>(null);
   const [profileImageURL, setProfileImageURL] = useState("/api/placeholder/150/150");
   const { isSignedIn, user } = useUser();
 
@@ -52,12 +52,12 @@ export default function ProfilePage() {
   }, [isSignedIn, user?.id]);
 
   // Handle text inputs
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   // Handle profile image upload
-  const handleProfileImageChange = (e) => {
+  const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setProfileImage(file);
@@ -66,7 +66,7 @@ export default function ProfilePage() {
   };
 
   // Handle form submission
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!user?.id) {
@@ -118,7 +118,7 @@ export default function ProfilePage() {
           toast.error(`Error uploading profile image: ${result.error}`);
         }
       } catch (error) {
-        toast.error(`Error uploading profile image: ${error.message}`);
+        toast.error(`Error uploading profile image`);
       }
     }
   };

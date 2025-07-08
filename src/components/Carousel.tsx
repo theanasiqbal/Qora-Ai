@@ -40,7 +40,15 @@ const initialSlides = [
   // { id: 5, name: "Alex", image: "/image/carousel3.png" },
 ];
 
-export default function HorizontalInfiniteScroll({ stop, setAgent }) {
+type HorizontalInfiniteScrollProps = {
+  stop?: boolean;
+  setAgent?: (agent: any) => void;
+};
+
+export default function HorizontalInfiniteScroll({
+  stop,
+  setAgent,
+}: HorizontalInfiniteScrollProps) {
   const [items, setItems] = useState([...initialSlides]);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const loader = useRef<HTMLDivElement>(null);
@@ -100,7 +108,9 @@ export default function HorizontalInfiniteScroll({ stop, setAgent }) {
   }, []);
 
   return (
-    <div className={`relative ${stop ? 'max-w-8xl': 'max-w-full'} mx-auto p-6`}>
+    <div
+      className={`relative ${stop ? "max-w-8xl" : "max-w-full"} mx-auto p-6`}
+    >
       {/* Scroll Buttons */}
       {/* <button
         onClick={scrollLeft}
@@ -118,12 +128,16 @@ export default function HorizontalInfiniteScroll({ stop, setAgent }) {
         {items.map((item) => (
           <div
             key={item.id}
-            className={`flex-shrink-0 ${stop ? 'cursor-pointer' : ''} w-full sm:w-[80vw] md:w-[40vw] lg:w-[20vw] h-[60vh] rounded-lg overflow-hidden bg-contain bg-transparent bg-top bg-no-repeat flex flex-col justify-end`}
+            className={`flex-shrink-0 ${stop ? "cursor-pointer" : ""} w-full sm:w-[80vw] md:w-[40vw] lg:w-[20vw] h-[60vh] rounded-lg overflow-hidden bg-contain bg-transparent bg-top bg-no-repeat flex flex-col justify-end`}
             style={{
               scrollSnapAlign: "center",
               backgroundImage: `url(${item.image})`,
             }}
-            onClick={() => stop && setAgent(item.name)}
+            onClick={() => {
+              if (stop && setAgent) {
+                setAgent(item.name);
+              }
+            }}
           >
             <Box key={item.id} className="bg-opacity-90 pb-40 sm:pb-3 md:pb-2">
               <h2 className="text-xl font-semibold text-center mb-2">
@@ -142,19 +156,21 @@ export default function HorizontalInfiniteScroll({ stop, setAgent }) {
               >
                 {item.type}
               </Typography>
-              {!stop && (<Typography
-                align="center"
-                variant="h4"
-                sx={{
-                  fontSize: { xs: ".8rem", md: "0.9rem" },
-                  wordWrap: "break-word",
-                  whiteSpace: "normal",
-                  textAlign: "center",
-                  color: "grey",
-                }}
-              >
-                {item.description}
-              </Typography>)}
+              {!stop && (
+                <Typography
+                  align="center"
+                  variant="h4"
+                  sx={{
+                    fontSize: { xs: ".8rem", md: "0.9rem" },
+                    wordWrap: "break-word",
+                    whiteSpace: "normal",
+                    textAlign: "center",
+                    color: "grey",
+                  }}
+                >
+                  {item.description}
+                </Typography>
+              )}
             </Box>
           </div>
         ))}

@@ -14,7 +14,6 @@ interface PageProps {
 
 const Page = async ({ params }: PageProps) => {
   const user = await currentUser();
-  console.log("user", user)
 
   let companyName = user?.id;
 

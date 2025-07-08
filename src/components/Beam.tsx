@@ -32,8 +32,10 @@ export const BorderBeam = ({
         style={{
           width: size,
           offsetPath: `rect(0 auto auto 0 round ${size}px)`,
-          "--color-from": colorFrom,
-          "--color-to": colorTo,
+          ...({
+            "--color-from": colorFrom,
+            "--color-to": colorTo,
+          } as React.CSSProperties),
           ...style,
         }}
         initial={{ offsetDistance: `${initialOffset}%` }}

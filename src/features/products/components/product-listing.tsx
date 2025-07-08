@@ -34,7 +34,7 @@ export default async function ProductListingPage({}: ProductListingPage) {
   const totalFeeds = data.total_feeds;
   const feeds = data.feeds;
 
-const cleanedFeeds = feeds.map((feed) => {
+const cleanedFeeds = feeds.map((feed: any) => {
   const now = new Date();
   const scheduledDate = new Date(feed.scheduledOn);
   const timeDiff = scheduledDate.getTime() - now.getTime();

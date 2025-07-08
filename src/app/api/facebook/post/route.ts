@@ -10,11 +10,10 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  const pageAccessToken = details.accessToken;
-  const pageId = details.pageId;
+  const pageAccessToken = details?.accessToken;
+  const pageId = details?.pageId;
 
   const { message, feedId } = await req.json();
-  console.log("message", message);
 
   try {
     // Post to Facebook

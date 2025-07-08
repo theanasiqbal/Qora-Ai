@@ -1,10 +1,12 @@
-import { NavItem } from "types";
+import { Icons } from "@/components/icons";
+
 
 export type Product = {
   photo_url: string;
   name: string;
   description: string;
   created_at: string;
+  content: string;
   price: number;
   id: number;
   category: string;
@@ -21,6 +23,17 @@ export type Lead = {
   status: string;
   updated_at: string;
 };
+
+export type IconKey = keyof typeof Icons;
+
+interface NavItem {
+  title: string;
+  url: string;
+  icon?: IconKey; // 👈 This is the key fix
+  isActive?: boolean;
+  items?: NavItem[];
+  shortcut?: string[];
+}
 
 //Info: The following data is used for the sidebar navigation and Cmd K bar.
 export const navItems: NavItem[] = [
