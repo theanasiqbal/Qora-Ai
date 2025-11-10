@@ -5,6 +5,7 @@ import { Upload, Globe, Plus, X, FileText, Brain } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Modal } from "@/components/ui/modal";
+import toast from "react-hot-toast";
 
 export default function BrainModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,7 +19,7 @@ export default function BrainModal() {
   const fetchWebsites = async () => {
     const response = await fetch("http://localhost:3001/api/websites");
     const { websites } = await response.json();
-    setWebsites(websites);
+    setWebsites(websites || []);
   };
 
   useEffect(() => {
@@ -79,26 +80,41 @@ export default function BrainModal() {
   };
 
   const handleWebsiteUpload = async () => {
-    const formData = new FormData();
-    formData.append("websites", websites.join(", "));
+  const formData = new FormData();
+  formData.append("websites", websites.join(", "));
 
-    try {
-      setUploading(true);
-      const res = await fetch('/api/websites', {
-        method: "POST",
-        body: formData,
-      });
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.error || "Upload failed");
-      alert(result.message);
-      router.refresh();
-    } catch (err) {
-      console.error(err);
-      alert("Upload failed");
-    } finally {
-      setUploading(false);
+  try {
+    setUploading(true);
+
+    const res = await fetch("/api/websites", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      throw new Error(result.error || "Upload failed");
     }
-  };
+
+    // Handle incompatible websites
+    if (result.incompatibleWebsites?.length > 0) {
+      toast.error(
+        `Some websites could not be crawled:\n${result.incompatibleWebsites.join("\n")}`
+      );
+    } else {
+      toast.success(result.message || "Websites uploaded and indexed successfully!");
+    }
+
+    router.refresh();
+  } catch (err) {
+    console.error(err);
+    alert("Upload failed");
+  } finally {
+    setUploading(false);
+  }
+};
+
 
   const TriggerButton = () => (
     <button
@@ -218,7 +234,7 @@ export default function BrainModal() {
               </button>
             </div>
 
-            {websites.length > 0 && (
+            {websites?.length > 0 ? (
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 <h4 className="text-sm font-medium text-gray-300">
                   Added Websites
@@ -247,6 +263,10 @@ export default function BrainModal() {
                 >
                   {uploading ? "Adding..." : "Add to knowledge"}
                 </button>
+              </div>
+            ) : (
+              <div className="text-center text-sm text-gray-400 mt-4">
+                No websites added yet. Enter a URL above and click "Add".
               </div>
             )}
           </div>

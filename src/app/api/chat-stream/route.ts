@@ -222,8 +222,4 @@ Response Workflow:
   });
 
   return res;
-
-  // const response = await generateResponse(lastMessage,context)
-
-  // return NextResponse.json({ response });
 };

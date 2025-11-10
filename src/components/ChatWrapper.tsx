@@ -92,6 +92,12 @@ export const ChatWrapper = ({
       }
       groups[label].push(chat);
     });
+    Object.keys(groups).forEach((label) => {
+      groups[label].sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+    });
 
     return groups;
   };
@@ -145,7 +151,7 @@ export const ChatWrapper = ({
   };
 
   const handleCloseFormattingPanel = () => {
-    setFormattedContent("")
+    setFormattedContent("");
     setIsFormattingPanelOpen(false);
     setIsMailMode(false);
   };
@@ -199,32 +205,32 @@ export const ChatWrapper = ({
           </div>
 
           {Object.keys(chatGroups).length > 0 ? (
-  orderedLabels.map((label) =>
-    chatGroups[label]?.length ? (
-      <div key={label} className="mb-4">
-        <h4 className="text-sm text-gray-400 mb-1">{label}</h4>
-        <ul className="ml-2 space-y-1">
-          {chatGroups[label].map((chat) => (
-            <li
-              key={chat.chatId}
-              onClick={() => handleChatSelect(chat.chatId)}
-              className="text-sm hover:bg-gray-700 p-2 rounded cursor-pointer text-gray-300"
-            >
-              {(() => {
-                const words = chat.lastMessage.trim().split(/\s+/);
-                return words.length > 3
-                  ? words.slice(0, 3).join(" ") + "..."
-                  : chat.lastMessage;
-              })()}
-            </li>
-          ))}
-        </ul>
-      </div>
-    ) : null
-  )
-) : (
-  <p className="text-gray-400 text-sm">No chats found</p>
-)}
+            orderedLabels.map((label) =>
+              chatGroups[label]?.length ? (
+                <div key={label} className="mb-4">
+                  <h4 className="text-sm text-gray-400 mb-1">{label}</h4>
+                  <ul className="ml-2 space-y-1">
+                    {chatGroups[label].map((chat) => (
+                      <li
+                        key={chat.chatId}
+                        onClick={() => handleChatSelect(chat.chatId)}
+                        className="text-sm hover:bg-gray-700 p-2 rounded cursor-pointer text-gray-300"
+                      >
+                        {(() => {
+                          const words = chat.lastMessage.trim().split(/\s+/);
+                          return words.length > 3
+                            ? words.slice(0, 3).join(" ") + "..."
+                            : chat.lastMessage;
+                        })()}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null
+            )
+          ) : (
+            <p className="text-gray-400 text-sm">No chats found</p>
+          )}
         </div>
       )}
 

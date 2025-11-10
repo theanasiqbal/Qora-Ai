@@ -32,7 +32,6 @@ const Page = async ({ params }: PageProps) => {
 
   try {
     const files = await listPDFFiles(prefix);
-    console.log("files", files)
     for (const { name, url } of files) {
       const redisKey = companyName || "Unknown";
       const isAlreadyIndexed = await redis.sismember(redisKey, name);
@@ -69,10 +68,7 @@ const Page = async ({ params }: PageProps) => {
 
   let chatId = cookies().get("chatId")?.value || "Unknown";
   const sessionId = `${companyName}-${chatId}`.replace(/\//g, "");
-  const initialMessages = await ragChat.history.getMessages({
-    amount: 10,
-    sessionId,
-  });
+  const initialMessages = []
 
   return (
     <ChatWrapper sessionId={sessionId} initialMessages={initialMessages} />
